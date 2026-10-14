@@ -19,7 +19,7 @@ Before writing anything, Claude asked me a few questions. My answers were:
 At first the options were a one-tap "how are you feeling?" check-in that suggests a skill, or starting with a chat where the AI suggests one. I didn't pick either. I asked to bring in my love of sports instead, and ended up with two buttons plus "Your usual". A mood check-in asks people to rate how they feel (D3), and letting the AI choose takes control away from the user (R4).
 
 ### Something else I changed: the sports idea
-I first wanted the app to feel sporty and energetic. Then I realized coach-style hype goes against D6 (cheerful language felt condescending) and D3 (being asked to perform is part of the emotional cost), and that scores or streaks would add pressure. So I changed it to a calm "reset between plays" idea, where sports only shows up in the names and feel. There are no scores, streaks, or hype.
+I first wanted the app to feel sporty and energetic. Then I realized coach-style hype goes against D6 (cheerful language felt condescending) and D3 (being asked to perform is part of the emotional cost), and that scores or streaks would add pressure. So I changed it to a calm reset idea based on my endurance racing (marathons, ultramarathons, triathlon, Hyrox), where sports only shows up in the concept of pacing and resetting. There are no scores, streaks, or hype.
 
 ### What I want to try in 3.2
 - Time the breathing circle with real timestamps (my estimate is about 66 seconds).
