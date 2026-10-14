@@ -23,4 +23,4 @@ I first wanted the app to feel sporty and energetic. Then I realized coach-style
 
 ### What I want to try in 3.2
 - Time the breathing circle with real timestamps (my estimate is about 66 seconds).
-- Run sports slang like "this drill is killing me" through the crisis keyword list to see how many false alarms I get.
+- Run athletic expressions like "this workout is killing me" through the crisis keyword list to see how many false alarms I get.

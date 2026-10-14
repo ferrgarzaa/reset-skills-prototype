@@ -4,22 +4,22 @@ This is a class prototype. It's not a mental health tool or therapy, nobody moni
 
 ## 1. The idea
 
-I'm a really sporty person, so I built the app around something athletes already do: after a bad play or a hard drill, you take a few seconds to reset and then keep going. The app has two short skills:
+The concept comes from my experience in endurance sports. I have run marathons and ultramarathons, and I also compete in triathlon and Hyrox. In long events, something almost always goes wrong: a hard climb, a rough transition, or a station that takes more out of you than expected. What helps in those moments is a short, intentional reset. You bring your breathing back to a steady rhythm, notice what is around you, and then continue. The application is built around that idea, and it offers two short skills:
 
-- Breath reset: paced breathing, in for 4 and out for 6
-- Ground reset: 5-4-3-2-1 grounding, where you tap instead of typing
+- Breath reset: paced breathing (inhale for 4, exhale for 6), similar to how I settle my breathing to find a pace again during a race
+- Ground reset: 5-4-3-2-1 grounding, similar to how I focus on my surroundings when a race feels overwhelming, done with taps instead of typing
 
-The sports part is only the framing. It shows up in the names, a couple of calm words like "reset", and the fictional people I'll test with. The actual steps of each skill don't change.
+The athletic background shapes only the framing. It appears in the names, in calm words such as "reset", and in the fictional personas I will use for testing. The steps of each skill stay exactly as defined.
 
-### Why I toned the sports part down
+### Why the athletic framing is restrained
 
-My first idea was to make it feel energetic, like a coach hyping you up. Then I looked at the findings again. D6 says cheerful phrasing felt condescending to participants, and D3 counts being asked to perform as part of the emotional cost. Sports apps usually have scores, streaks, and "new personal best!" messages, and that's exactly the kind of pressure this app shouldn't have. So:
+My first idea was to give the application an energetic, coach-like tone. After reviewing the findings again, I changed that approach. D6 reports that cheerful phrasing was experienced as condescension, and D3 identifies being asked to perform as part of the emotional cost. Endurance sport is full of splits, personal records, and streaks, and that is exactly the kind of pressure this application should avoid. For this reason:
 
-- no scores, streaks, badges, or personal bests
-- no hype or motivational messages
-- stopping early is never called quitting or failing
+- there are no scores, streaks, badges, or personal records
+- there are no slogans or motivational messages
+- stopping early is never described as quitting or failing
 
-What I kept is the idea that a reset is short and normal, and then you get back to your day. I still want to check whether this framing works for someone who doesn't care about sports (question 1 in section 10).
+What remains from endurance sport is the idea of pacing and of a reset as something brief and normal before returning to the day. I still need to check whether this framing works for someone who is not interested in sports (question 1 in section 10).
 
 ## 2. Main flow
 
@@ -151,7 +151,7 @@ The only place someone can type is the optional note after a reset. Before that 
 
 Limits of the keyword list:
 - it'll miss indirect wording or typos
-- it'll flag some things it shouldn't, especially with sports slang like "this drill is killing me" or "I'm dead after practice"
+- it'll flag some things it shouldn't, especially with sports slang like "this workout is killing me" or "I'm dead after that long run"
 - I'm fine with extra false alarms, because a false alarm only opens an info panel
 - the app never calls it detection or monitoring
 
