@@ -1,30 +1,26 @@
 # Evidence Log
 
-Curated and redacted. No credentials, personal info, or research-participant info.
+I picked these entries myself and left out anything personal. There are no keys or passwords in here.
 
 ## Part 3.1
 
-### 2026-10-13: In-class ideation discussion
-Group discussion (Meshal Alqufaidi, Emad Zamzami, Rayan Alanazi, Henry, me). We agreed D3 and D2 were the clearest constraints and that crisis access and the skill steps should live in code, not the prompt. We worried about detecting distress for D1 using click behavior (false positives, feels like monitoring). → Basis for keeping the model small and not inferring distress.
+### Oct 13: Class discussion
+I talked with Meshal Alqufaidi, Emad Zamzami, Rayan Alanazi, and Henry. We agreed that D3 and D2 were the clearest rules to follow, and that crisis access and the skill steps should be in the code, not left to the AI. We also weren't sure about using click behavior to guess distress for D1, because it could be wrong a lot and might feel like being watched. That's a big reason why I kept the AI's role small and didn't try to detect distress.
 
-### 2026-10-14: Design session with Claude (claude.ai)
-Claude asked me a set of multiple-choice questions before drafting. My answers:
-- Skills: breathing + grounding.
-- Model provider: Anthropic (Claude), same as the RAG activity.
-- Crisis: always-visible static button + keyword check in code.
-- Model role: short lines before/after only.
-- Reuse: starting clean.
+### Oct 14: Planning with Claude
+Before writing anything, Claude asked me a few questions. My answers were:
+- skills: breathing and grounding
+- AI: Anthropic's Claude, same as the RAG activity
+- crisis: a button that's always visible, plus a keyword check in my code
+- what the AI does: only short lines before and after
+- reuse: starting from scratch
 
-### Revised approach 1: how the user picks a skill
-- **First options considered:** a one-tap "how are you feeling" check-in that suggests a skill, or a chat-first entry where the model suggests a skill.
-- **Revised to:** two buttons plus "Your usual". Instead of those options, I asked to bring my interest in sports into the app.
-- **Why:** a mood check-in asks the user to rate their feelings (D3), and a model choosing the skill takes control away (R4).
+### Something I changed: how you pick a skill
+At first the options were a one-tap "how are you feeling?" check-in that suggests a skill, or starting with a chat where the AI suggests one. I didn't pick either. I asked to bring in my love of sports instead, and ended up with two buttons plus "Your usual". A mood check-in asks people to rate how they feel (D3), and letting the AI choose takes control away from the user (R4).
 
-### Revised approach 2: sports framing
-- **First idea:** make the app feel like sports.
-- **Problem found:** coach-style or motivational language conflicts with D6 (cheerful phrasing felt like condescension) and with D3 (being asked to *perform* is an emotional cost). Scores and streaks would also add pressure.
-- **Revised to:** a calm "reset between plays" concept: sports in the names and framing only, with no scores, streaks, or hype.
+### Something else I changed: the sports idea
+I first wanted the app to feel sporty and energetic. Then I realized coach-style hype goes against D6 (cheerful language felt condescending) and D3 (being asked to perform is part of the emotional cost), and that scores or streaks would add pressure. So I changed it to a calm "reset between plays" idea, where sports only shows up in the names and feel. There are no scores, streaks, or hype.
 
-### Planned experiments for 3.2
-- Time the breathing cue with real timestamps (target ≈ 66 s).
-- Run sports-slang phrases ("this drill is killing me") through the crisis keyword list to measure false positives.
+### What I want to try in 3.2
+- Time the breathing circle with real timestamps (my estimate is about 66 seconds).
+- Run sports slang like "this drill is killing me" through the crisis keyword list to see how many false alarms I get.

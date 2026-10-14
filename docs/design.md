@@ -1,25 +1,25 @@
 # Reset: Design Notes (Part 3.1)
 
-> Coursework skills prototype. Not a mental health support tool, not therapy, and nobody monitors what is entered. Tested only with fictional scenarios.
+This is a class prototype. It's not a mental health tool or therapy, nobody monitors it, and I only test it with made-up scenarios.
 
-## 1. Concept
+## 1. The idea
 
-**Reset** offers two short skills, framed the way athletes use a quick reset between plays or after a hard drill:
+I'm a really sporty person, so I built the app around something athletes already do: after a bad play or a hard drill, you take a few seconds to reset and then keep going. The app has two short skills:
 
-- **Breath reset**: paced breathing, inhale 4 / exhale 6.
-- **Ground reset**: 5-4-3-2-1 sensory grounding, answered with taps instead of typing.
+- Breath reset: paced breathing, in for 4 and out for 6
+- Ground reset: 5-4-3-2-1 grounding, where you tap instead of typing
 
-The sports idea comes from my own interests. I use it as framing only: the names, a few calm words ("reset", "timeout"), and the fictional test personas. It does not change the skill steps.
+The sports part is only the framing. It shows up in the names, a couple of calm words like "reset", and the fictional people I'll test with. The actual steps of each skill don't change.
 
-### Where the sports framing could go wrong
+### Why I toned the sports part down
 
-Sports language can easily turn into coach talk ("Let's go!", "Crush it!", "New personal best!"). D6 says cheerful phrasing felt condescending to participants. D3 lists *being asked to perform* as an emotional cost. So the app deliberately has:
+My first idea was to make it feel energetic, like a coach hyping you up. Then I looked at the findings again. D6 says cheerful phrasing felt condescending to participants, and D3 counts being asked to perform as part of the emotional cost. Sports apps usually have scores, streaks, and "new personal best!" messages, and that's exactly the kind of pressure this app shouldn't have. So:
 
-- no scores, streaks, badges, or "personal bests"
-- no motivational or hype phrasing
-- no performance language for stopping early ("quit", "fail", "incomplete")
+- no scores, streaks, badges, or personal bests
+- no hype or motivational messages
+- stopping early is never called quitting or failing
 
-The sports part is the *idea of a reset*: short, normal, done before getting back to what you were doing. It is not about competition. An open question (section 10) is whether this framing works for people who don't care about sports.
+What I kept is the idea that a reset is short and normal, and then you get back to your day. I still want to check whether this framing works for someone who doesn't care about sports (question 1 in section 10).
 
 ## 2. Main flow
 
@@ -36,21 +36,21 @@ flowchart TD
     C -.->|Stop, any time| G[Stopped screen: no consequence]
     D -.->|Stop, any time| G
     F --> H[Optional 1-tap check: Helped / Not sure / Not today]
-    H --> I[Optional short note, one model reply]
+    H --> I[Optional short note, one AI reply]
     F --> B
     G --> B
     B --> J[History]
 
-    K[[Need help now: fixed on every screen]] -.-> L[Crisis panel: static, no model call]
+    K[[Need help now: on every screen]] -.-> L[Crisis panel: built into the page, no AI]
     I -.->|keyword match on note| L
 ```
 
-The **Need help now** button sits in the same spot on every screen, including inside an exercise and when the model has failed. It opens a panel that is plain static content in the frontend and makes no network request.
+The "Need help now" button is in the same spot on every screen, including during an exercise and when the AI isn't working. It opens a panel that's part of the page itself, so it doesn't need the server or the AI.
 
 ## 3. Screen sketches
 
 ```
-HOME                              BREATH RESET (inside exercise)
+HOME                              BREATH RESET (during exercise)
 +------------------------------+  +------------------------------+
 | Reset          [Need help now]|  |                [Need help now]|
 |                              |  |                              |
@@ -68,7 +68,7 @@ GROUND RESET (one sense per screen) DONE
 +------------------------------+  +------------------------------+
 |                [Need help now]|  |                [Need help now]|
 |  Notice 4 things you can feel|  |  That's the reset.           |
-|                              |  |  <one short model line>      |
+|                              |  |  <one short AI line>         |
 |     ( * ) ( * ) ( ) ( )      |  |                              |
 |   tap a dot each time you    |  |  How was it? (optional)      |
 |   notice one, no need to     |  |  [Helped][Not sure][Not today]|
@@ -78,106 +78,109 @@ GROUND RESET (one sense per screen) DONE
 +------------------------------+  +------------------------------+
 ```
 
-The home screen is the "biggest" the app ever gets: two or three choices plus History. Inside an exercise there is only the cue, Stop, and Need help now.
+Home is the busiest the app ever gets, with two or three choices and a History link. During an exercise you only see the cue, Stop, and Need help now.
 
-## 4. Decisions and the findings behind them
+## 4. My decisions and why
 
-| Decision | Findings | Trade-off / what I give up |
+| What I decided | Findings | What I give up |
 |---|---|---|
-| Two skills only: breathing and grounding | D3 (emotional cost is concentrated on breathing and grounding, and both can be done with almost no input), R1 | No STOP or reframe. The reframe asks for thinking and typing that conflict with D3 and the 90 s limit. |
-| One action per screen; grounding shows one sense at a time | D2 | Grounding takes 5 screens instead of 1 list, which means more transitions to time. |
-| Taps instead of typing in grounding | D3 | The app does not know *what* the user noticed, so the model cannot respond to it. That is intentional. |
-| Stop button on every exercise screen. Stopping goes to a neutral screen ("You stopped. That's fine.") and is recorded as "stopped", never as a failure | R3 | Stopped sessions still count in history, but they are worded neutrally. |
-| User picks the skill. "Your usual" is an extra choice, never an automatic redirect | R4, D5 | Takes one more tap than auto-starting the usual skill, but the user keeps control. |
-| Need help now is fixed on every screen, static, and works offline from the model | R2, D4 | Takes a little screen space everywhere, including inside exercises. |
-| Interface contraction is tied to *where the user is*, not to detected distress | D1 | The app never claims to know how someone feels. Contraction is by design: home > exercise > done. |
-| Muted colors, slow motion only in the breathing cue, short plain sentences | D6 | Less "branded" look. The sports theme stays in words, not bright visuals. |
-| Model writes only short lines; the steps are hard-coded | D6, assignment §2 | Less "chatty" app, but the model cannot change or invent the skill. |
+| Only breathing and grounding | D3 (the emotional cost showed up mostly on breathing and grounding, and both can be done with almost no input), R1 | No STOP or reframe. The reframe needs thinking and typing, which doesn't fit D3 or 90 seconds. |
+| One thing per screen, and grounding goes one sense at a time | D2 | Grounding becomes 5 screens instead of 1 list, so there are more transitions to time. |
+| Tapping instead of typing in grounding | D3 | The app doesn't know what the person noticed, so the AI can't respond to it. That's on purpose. |
+| Stop is on every exercise screen and takes you to a calm screen ("You stopped. That's fine."). It's saved as "stopped", never as a fail | R3 | Stopped sessions still show in history, but they're worded neutrally. |
+| The user picks the skill. "Your usual" is an extra button, not something the app starts on its own | R4, D5 | It's one more tap than auto-starting, but the person stays in control. |
+| Need help now is on every screen, built into the page, and works without the AI | R2, D4 | It takes up a bit of space everywhere, even during exercises. |
+| The screen gets simpler based on where you are, not on guessing how you feel | D1 | The app never pretends to know how someone feels. |
+| Soft colors, the only motion is the breathing circle, short plain sentences | D6 | It looks less "branded". The sports theme stays in the words, not in bright visuals. |
+| The AI only writes short lines; the steps are written in my code | D6, assignment section 2 | The app is less chatty, but the AI can't change or make up the skill. |
 
-## 5. D1 without a distress detector
+## 5. D1 without guessing distress
 
-The study says the interface should contain less as distress rises, but it does not say how a system would know. My app **does not try to detect distress**. I considered three options:
+D1 says the screen should show less as distress goes up, but the study doesn't say how an app would know that. I'm not trying to detect it. I thought about three options:
 
-1. **Infer it from clicks or speed** (idea from the in-class discussion of the clicking-behavior study). Rejected for now: it could be wrong often, it could feel like the app is watching (the assignment says it must not imply monitoring), and it takes a decision away from the user (R4).
-2. **Ask with a one-tap check-in** ("How are you right now?"). Rejected for now: it asks the user to rate their feelings, which is an emotional cost (D3).
-3. **Contract by location.** Chosen. Each step deeper into the experience has less on screen. The user decides how deep to go by choosing to start.
+1. Guess from clicks or speed. This came up in our class discussion of the clicking-behavior study. I'm not doing it for now because it could be wrong a lot, it could feel like the app is watching you (the assignment says it can't seem like it's monitoring), and it takes the choice away from the user (R4).
+2. Ask with one tap, like "How are you right now?". I'm not doing this either, because asking someone to rate their feelings is an emotional cost (D3).
+3. Show less the deeper you go. This is what I chose. Each step into the experience has less on the screen, and the person decides how far to go.
 
-What the app actually knows: which button was tapped, timing, whether the user stopped, the optional 1-tap check, and optional note text. What it assumes: someone who starts an exercise wants fewer things on screen. How the user can correct it: Stop or go back home at any time.
+What the app actually knows: which button you tapped, timing, whether you stopped, the optional one-tap answer, and the optional note. What it assumes: if you start an exercise, you want fewer things on screen. How you can change that: hit Stop or go home anytime.
 
-## 6. Role of the model and its limits
+## 6. What the AI does and doesn't do
 
-Model: Claude through the Anthropic API (planned: `claude-haiku-5-5`, set by an environment variable so it can change). The backend calls the model, never the browser.
+I'm using Claude through the Anthropic API. The plan is `claude-haiku-5-5`, set in an environment variable so I can change it. Only the backend talks to the AI, never the browser.
 
-**What the model does**
-- One short opening line before an exercise (max ~20 words).
-- One short closing line on the Done screen, adjusted to light context: which skill, whether it was the user's usual, how many times they've done it.
-- One short reply if the user writes an optional note after a reset.
+What the AI does:
+- one short line before an exercise (around 20 words max)
+- one short line on the Done screen, which can mention which skill it was, whether it was your usual, or how many times you've done it
+- one short reply if you write an optional note after a reset
 
-**What the application controls (not the prompt)**
-- The skill steps and their text, stored in a fixed script table and never generated.
-- Timing of the breathing cue.
-- Stop / exit buttons and where they go.
-- The Need help now panel and its content.
-- What gets saved.
+What my code handles, not the AI:
+- the steps of each skill, which are saved in a fixed table and never generated
+- the timing of the breathing circle
+- the Stop and exit buttons and where they go
+- the Need help now panel
+- what gets saved
 
-**Limits in the system prompt** (a second layer, not the main safety mechanism):
-- No diagnosis, no clinical terms, no therapeutic advice, no new techniques.
-- No hype or cheerful coach language, no exclamation marks, no emojis.
-- Max 2 sentences.
-- Do not say or imply anyone is watching or will follow up.
-- Do not claim to be a therapist.
+The prompt also has rules, but they're a backup, not the main safety plan:
+- don't diagnose, use clinical words, give therapy advice, or suggest new techniques
+- no coach hype, exclamation marks, or emojis
+- two sentences max
+- never say or imply someone is watching or will check in
+- don't claim to be a therapist
 
-**Output check in code:** if a reply is too long, or contains blocked words from a short list (e.g., "diagnose", "disorder", "you should try"), it gets replaced with a fallback line.
+My code also checks each reply. If it's too long or uses words from a short blocked list ("diagnose", "disorder", "you should try"), it gets swapped for a pre-written line.
 
-**Failure handling:** model calls time out after ~3 s. On timeout or error the app shows a fixed fallback line (e.g., "That's the reset. Take your time.") and keeps working. The opening line is requested while the home screen loads, so it does not add time inside the exercise.
+If the AI takes more than about 3 seconds or errors out, the app shows a pre-written line like "That's the reset. Take your time." and keeps working. The opening line loads while you're on the home screen, so it never slows down the exercise itself.
 
-This is similar to the hotel chatbot: retrieved, fixed information (there, hotel data; here, the skill script and the user's own history) goes into the context, and the model only phrases things around it.
+This works a lot like the hotel chatbot. There, the hotel info was the fixed context. Here it's the skill steps and your own history, and the AI just words things around that.
 
-## 7. Crisis access and crisis-related input
+## 7. Crisis access
 
-**Independent route (always available):** "Need help now" button in the header on every screen. It opens a static panel that is part of the frontend bundle:
-- Call or text **988** (Suicide & Crisis Lifeline, US)
-- Text **HOME to 741741** (Crisis Text Line)
-- Call **911** for an emergency
-- One line: "This is a class prototype. It can't help in an emergency."
+The Need help now button is in the header on every screen. It opens a panel that's part of the page:
+- call or text 988 (Suicide & Crisis Lifeline, US)
+- text HOME to 741741 (Crisis Text Line)
+- call 911 for an emergency
+- "This is a class prototype. It can't help in an emergency."
 
-No API call, no model, no classifier is involved. It must work with the backend stopped. That is one of my planned behavior checks.
+There's no server call, no AI, and no classifier involved, so it should work even with the backend turned off. That's one of the behavior checks I'm planning.
 
-**Crisis-related input (documented decision):** the only free text is the optional note after a reset. Before that text is sent to the model, a keyword/phrase list in the backend (also mirrored in the frontend) checks it.
-- If it matches, the model is **not called**. The app shows a fixed, calm message and opens the crisis panel. The user can close the panel and keep using the app; nothing is locked.
-- The message is saved with `crisis_flag = 1` so I can test it. It is not sent anywhere.
+The only place someone can type is the optional note after a reset. Before that text goes to the AI, my backend checks it against a list of crisis-related words and phrases (the frontend has a copy too). If something matches:
+- the AI doesn't get called
+- a calm, pre-written message shows up and the crisis panel opens
+- the person can close the panel and keep using the app, and nothing gets locked
+- the message is saved with a crisis flag so I can test it, but it's not sent anywhere
 
-**Limits of the keyword list:**
-- It misses indirect or misspelled language.
-- It has false positives, which matters with sports framing: "this drill is killing me" or "I'm dead after practice". A false positive only opens an info panel, which costs little, so I accept more false positives than misses.
-- It is never presented as detection or monitoring.
+Limits of the keyword list:
+- it'll miss indirect wording or typos
+- it'll flag some things it shouldn't, especially with sports slang like "this drill is killing me" or "I'm dead after practice"
+- I'm fine with extra false alarms, because a false alarm only opens an info panel
+- the app never calls it detection or monitoring
 
-## 8. Timing (R1, assignment §5)
+## 8. Timing
 
-Measured from the first exercise instruction to the final planned step. Entry and the Done screen are reported separately.
+I'm measuring from the first exercise instruction to the last planned step. Opening the app and the Done screen are counted separately.
 
-**Breath reset**
-- First instruction ("Follow the circle. In for 4, out for 6."): 3 s
-- 6 cycles × (4 s in + 6 s out) = 60 s
-- Final step ("Last breath out. That's it."): 3 s
-- **Total ≈ 66 s.** No model call happens inside the sequence, so no network delay is added.
+Breath reset:
+- first instruction ("Follow the circle. In for 4, out for 6."): 3 s
+- 6 breaths, 4 seconds in and 6 seconds out: 60 s
+- ending ("Last breath out. That's it."): 3 s
+- total: about 66 seconds, and there's no AI call during it, so no waiting on the network
 
-**Ground reset** (assumes ~2.5 s to notice each item and tap)
-- Intro instruction: 3 s
-- 15 items × 2.5 s = 37.5 s
-- 5 sense screens × ~3 s to read the prompt = 15 s
-- **Total ≈ 56 s.** At a slower 4 s per item: 3 + 60 + 15 = 78 s, still under 90.
-- The user can tap "Next sense" early. Nothing forces them to find all items.
+Ground reset (assuming about 2.5 seconds to notice and tap each thing):
+- intro: 3 s
+- 15 things at 2.5 s each: 37.5 s
+- 5 sense screens with about 3 s to read each one: 15 s
+- total: about 56 seconds, or about 78 seconds if someone takes 4 seconds per thing, which is still under 90
+- people can tap "Next sense" early, and nothing makes them find everything
 
-**Entry** (home > tap a reset): ~3–5 s, reported separately.
+Opening the app and picking a reset takes about 3 to 5 seconds, counted separately.
 
-No timer ends the exercise or kicks the user out. If someone takes longer, the exercise waits.
+No timer ever ends the exercise or kicks someone out. If they take longer, the app just waits.
 
-Small experiment for 3.2: build the breathing cue alone and log real timestamps from first instruction to final step to compare against 66 s.
+For 3.2, I want to try a small experiment: build only the breathing circle, record the real timestamps, and compare them to my 66-second estimate.
 
-## 9. Data stored (SQLite) and personalization
+## 9. What gets saved and how it personalizes
 
-Single local user, no accounts, nothing leaves localhost except model requests.
+It's one local user with no accounts. Nothing leaves my computer except the requests to the AI.
 
 ```
 sessions
@@ -189,30 +192,30 @@ messages
   id, session_id, role ('assistant'|'user'), content,
   source ('model'|'fallback'|'static'), crisis_flag (0/1), created_at
 
-skill_steps          -- fixed script, seeded, never written by the model
+skill_steps          -- fixed script, loaded at setup, the AI never writes here
   skill, step_order, text, duration_s
 ```
 
-**Personalization (D5) without setup:**
-- "Your usual" = the skill with the most completed sessions in the last 10. It only appears after at least one completed reset.
-- If the user said "Not today" the last two times for a skill, it is not shown as "usual". (Open question: is that too clever?)
-- The model's closing line can mention context lightly, e.g. "Your usual breath reset, done."
+How it personalizes without settings (D5):
+- "Your usual" is whichever skill you've finished the most in your last 10 sessions. It only shows up after you've finished at least one.
+- If you tapped "Not today" the last two times for a skill, it stops showing as your usual. I'm not sure yet if that's too much.
+- The AI's closing line can mention it lightly, like "Your usual breath reset, done."
 
-**What the user sees (History):** a simple list with date, skill, "Done" or "Stopped", and about how long. No streaks, charts, or scores. One "Clear history" button deletes everything.
+The History page is a simple list with the date, skill, whether you finished or stopped, and about how long it took. There are no streaks, charts, or scores, and there's a Clear history button that deletes everything.
 
-**What I give up:** no settings screen, so a user can't, for example, set breathing to 5 cycles. Adding settings would be configuration burden (D5). This could be revisited.
+What I give up: there's no settings page, so you can't, for example, change breathing to 5 rounds. Adding settings would be the kind of setup D5 says to avoid. I might come back to this.
 
-## 10. Questions still open
+## 10. Questions I still have
 
-1. Does the sports "reset" framing help, or does it push some users away? Test it with a non-sports fictional persona too.
-2. Is a 66 s breathing exercise the right length, or should there be a shorter ~40 s option? (R1 says ~60 s felt comfortable.)
-3. Should the breathing cue include optional sound or vibration? Speech is optional in the assignment and adds browser testing.
-4. Is the "Not today hides the usual" rule helpful, or does it take control away?
-5. How large should the crisis keyword list be, and how do I test misses fairly with fictional inputs?
-6. Should free-text notes be saved at all, or kept only for the current session? (Privacy vs. history.)
-7. Which existing breathing or grounding app interfaces should I review for the UI research step? Not done yet.
-8. Will the optional note + one reply be enough to count as "conversational"? Or do I need a slightly longer optional chat after a reset?
+1. Does the sports "reset" idea help, or does it turn some people off? I want to test it with a fictional non-sporty person too.
+2. Is 66 seconds of breathing right, or should there be a shorter option of about 40 seconds? R1 says around 60 felt comfortable.
+3. Should the breathing circle have optional sound or vibration? Speech is optional for this assignment and would mean more browser testing.
+4. Is hiding "Your usual" after two "Not today" answers helpful, or does it take control away?
+5. How big should the crisis keyword list be, and how do I fairly test what it misses with made-up inputs?
+6. Should I save the notes people write, or only keep them for that session? It's a trade-off between privacy and history.
+7. Which breathing or grounding apps should I look at for the UI research step? I haven't done that yet.
+8. Is one AI reply after the note enough to count as conversational, or do I need a short optional chat?
 
 ## 11. Reuse
 
-Starting from a clean project. I will use the same stack and patterns from class (Vue, FastAPI, SQLite, a backend endpoint that calls the model, saved conversation history like the RAG activity), but I'm not copying code from A1, A2, or the RAG activity.
+I'm starting from scratch. I'll use the same stack and patterns from class (Vue, FastAPI, SQLite, a backend route that calls the AI, and saved conversation history like in the RAG activity), but I'm not copying code from A1, A2, or the RAG activity.
