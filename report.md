@@ -1,48 +1,63 @@
 # Assignment 3.1: Research and Design Report
 
-**Student:** Fernanda Garza
-**Repository:** https://github.com/ferrgarzaa/reset-skills-prototype
-**Submitted commit:** see the copy of this report submitted on Canvas
+Fernanda Garza
 
-> Coursework prototype only. Not a mental health tool, not therapy, no monitoring. Fictional scenarios only.
+Repository: https://github.com/ferrgarzaa/reset-skills-prototype
+Submitted commit: see the copy of this report submitted on Canvas
+
+This is a class prototype. It's not a mental health tool or therapy, nobody is monitoring it, and I'm only testing it with made-up scenarios.
 
 ## Links
-- Design notes (flow diagram, screen sketches, decisions, model role, data, timing, open questions): [`docs/design.md`](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/design.md)
-- Evidence log: [`docs/evidence-log.md`](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence-log.md)
-- README: [`README.md`](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/README.md) · Agent rules: [`AGENTS.md`](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AGENTS.md) · AI use: [`AI-USE.md`](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AI-USE.md)
-- Recordings: none for this milestone
 
-## The idea
-**Reset** is a short-skills app framed like the quick reset athletes take between plays. It offers two skills: **Breath reset** (paced breathing 4 in / 6 out) and **Ground reset** (5-4-3-2-1 grounding, done with taps instead of typing). The sports part is just framing, which is my own interest. I kept it calm on purpose: no scores, streaks, or coach-style hype, because D6 says cheerful phrasing felt condescending and D3 counts "having to perform" as an emotional cost.
+- [Design notes](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/design.md): flow diagram, screen sketches, how each decision connects to the findings, the AI's role, crisis access, timing, data, and open questions
+- [Evidence log](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence-log.md)
+- [README](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/README.md), [AGENTS.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AGENTS.md), [AI-USE.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AI-USE.md)
+- No recordings for this part
 
-## Main design choices
-- **Two low-effort skills** (D3, R1). I dropped the reframe because it needs typing and thinking that don't fit D3 or 90 seconds.
-- **One action per screen** (D2). Grounding shows one sense at a time, and you tap a dot each time you notice something.
-- **The user picks.** Home has Breath, Ground, and "Your usual" once you've done one (R4, D5). Personalization comes from history, with no settings to fill out.
-- **Stop is always there**, and stopping goes to a neutral screen with no penalty (R3).
-- **Need help now** is fixed on every screen and is static content (988, Crisis Text Line, 911). It works even if the model or the backend is down (R2, D4).
-- **D1 without a detector:** the screen gets simpler as you go deeper (home > exercise > done), not based on guessing how someone feels. I decided against inferring distress from clicks because it could be wrong and feel like monitoring.
+## My idea
 
-## Role of the model
-Claude only writes short opening/closing lines and replies once to an optional note. The skill steps, timing, exits, crisis panel, and saving are all in code. The prompt bans diagnosis, advice, hype, and anything implying monitoring, and a code check replaces bad or long replies with a fallback line. On timeout or error, the app uses a fixed line and keeps going.
+My app is called Reset. I'm really into sports, and athletes do this all the time: you have a bad play, you take a few seconds to reset, and you keep going. I wanted the app to feel like that. It has two short skills, a Breath reset (breathing in for 4 and out for 6) and a Ground reset (5-4-3-2-1 grounding, but you tap instead of typing).
 
-**Crisis-related input:** the optional note is checked against a keyword list *before* any model call. On a match, the model isn't called, a fixed message shows, and the crisis panel opens. The limits: it misses indirect wording and flags sports slang like "this drill is killing me". I accept extra false positives because a false positive only opens an info panel.
+I had to be careful with the sports part though. My first thought was to make it feel energetic, but D6 says cheerful language felt condescending to participants, and D3 says being asked to perform is part of the emotional cost. So there are no scores, streaks, or "let's go!" type messages. The sports idea is just in the name and the feeling of taking a quick reset.
 
-## Data stored
-SQLite tables: `sessions` (skill, done/stopped, duration, optional 1-tap feedback), `messages` (model and user lines, source, crisis flag), and `skill_steps` (the fixed script). History shows date, skill, Done/Stopped, and length, with a "Clear history" button.
+## Main decisions
+
+I picked breathing and grounding because they ask the least from the person (D3) and both fit in under 90 seconds (R1). I left out the cognitive reframe because it needs a lot of thinking and typing, which felt like too much for someone who's already upset.
+
+Every screen inside an exercise has one thing to do (D2). For grounding, that means one sense per screen, and you tap a dot each time you notice something instead of writing it down.
+
+The user always chooses. The home screen has Breath, Ground, and once you've done one, a "Your usual" button (R4, D5). The app learns from what you've done before, so there's no settings page to fill out.
+
+There's a Stop button on every exercise screen, and stopping just takes you to a calm screen that says it's fine (R3). It never says you "failed" or "quit".
+
+The "Need help now" button is on every screen in the same spot. It shows crisis numbers (988, Crisis Text Line, 911) and it's built into the page, so it works even if the AI or the server is down (R2, D4).
+
+For D1, the study doesn't say how an app would know someone's distress is going up, and I didn't want to guess. In class we talked about using click behavior, but it could be wrong a lot and it might feel like the app is watching you. So instead, the app just shows less the deeper you go. Home has a few options, and the exercise has almost nothing on it.
+
+## What the AI does
+
+Claude only writes a short line before and after the exercise, and replies once if the user writes an optional note at the end. The steps, the timing, the Stop button, the crisis panel, and what gets saved are all handled by my code, not the AI. The prompt tells it not to diagnose, give advice, sound like a coach, or act like someone's watching, and my code double-checks the reply. If the AI takes too long or says something it shouldn't, the app just shows a pre-written line and keeps going.
+
+If someone writes something crisis-related in the note, a keyword check in my code catches it before anything is sent to the AI. The AI doesn't get called, a calm message shows up, and the crisis panel opens. The keyword list won't catch everything, and it'll probably flag sports slang like "this drill is killing me", but I'd rather open the info panel by mistake than miss something.
+
+## What gets saved
+
+SQLite stores each session (which skill, whether it was finished or stopped, how long it took, and an optional one-tap "how was it"), the messages, and the fixed exercise steps. The History page shows the date, skill, whether you finished, and how long it took. There's also a button to clear everything.
 
 ## Timing
-Breath reset ≈ **66 s** (3 s instruction + 6 × 10 s breaths + 3 s close). Ground reset ≈ **56 s** at 2.5 s per item, **78 s** at 4 s per item. Entry is ~3–5 s, counted separately. No timer ever ends the exercise.
 
-## What's complete
-The design, flow diagram, screen sketches, decision table linked to R1–R4/D1–D6, model role and limits, crisis decision, data model, timing estimates, and project docs.
+The Breath reset takes about 66 seconds: a short intro, 6 breaths of 10 seconds each, and a short ending. The Ground reset takes around 56 seconds if someone takes 2.5 seconds per thing they notice, and around 78 seconds at 4 seconds each. Opening the app and picking a skill takes a few more seconds, which I'm counting separately. The exercise never ends someone on a timer.
 
-## What's unresolved
-- Whether the sports framing works for non-sports users.
-- Whether the breathing exercise should also offer a shorter version.
-- Whether to save free-text notes at all.
-- Whether the optional note + reply is "conversational" enough.
-- The size of the crisis keyword list and how to test misses.
-- I still need to review existing breathing/grounding app interfaces.
+## What's done and what's still open
 
-Full list in `docs/design.md` §10.
+Done: the design, the flow diagram and sketches, the decisions connected to R1 through D6, the AI's role, the crisis plan, the data plan, the timing estimates, and the project docs.
+
+Still figuring out:
+- whether the sports idea works for people who aren't into sports
+- whether breathing should have a shorter option
+- whether I should save the notes people write
+- whether one AI reply is "conversational" enough
+- how big the crisis keyword list should be and how to test it fairly
+- looking at existing breathing and grounding apps for ideas
+
+The full list is in section 10 of the design notes.
