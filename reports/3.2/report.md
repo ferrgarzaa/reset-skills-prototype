@@ -5,70 +5,64 @@ Fernanda Garza
 Repository: https://github.com/ferrgarzaa/reset-skills-prototype
 Submitted commit: see the copy of this report submitted on Canvas
 
-This is a coursework prototype. It is not a mental health tool and does not provide therapy, no one monitors its use, and it is tested only with fictional scenarios.
+Reset is a class prototype. It isn't a mental health tool or therapy, nobody monitors it, and I only tested it with made-up scenarios.
 
 ## Links
 
-- [Verification evidence](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/README.md): 19 scenarios with expected and observed results, 21 screenshots, behavior checks, and measured timing
-- [Database inspection](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/db-inspection.txt) and [test results](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/pytest-results.txt)
-- [Design notes, section 12: changes in 3.2](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/design.md#12-changes-in-part-32)
+- [Verification evidence](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/README.md) with the screenshots, the scenarios I tested, and the timing results
+- [Database output](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/db-inspection.txt) and [test results](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence/3.2/pytest-results.txt)
+- [What changed in the design for 3.2](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/design.md#12-changes-in-part-32)
 - [Journal system prompt](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/backend/app/prompts/journal_system.md)
 - [Evidence log](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/docs/evidence-log.md)
-- [README with run instructions](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/README.md), [AGENTS.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AGENTS.md), [AI-USE.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AI-USE.md)
-- Recordings: none for this milestone. The screenshots and database output serve as the evidence.
+- [README](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/README.md), [AGENTS.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AGENTS.md), and [AI-USE.md](https://github.com/ferrgarzaa/reset-skills-prototype/blob/main/AI-USE.md)
+- I didn't make a recording for this part. The screenshots and the database output are my evidence.
 
-## What I built
+## What works now
 
-Reset now runs on localhost with Vue, FastAPI, and SQLite. A person can complete both skills from the running interface.
+The app runs on localhost with Vue, FastAPI, and SQLite, and you can finish both skills from the interface. In the Breath reset, a circle grows for 4 seconds and shrinks for 6, six times, with a countdown. In the Ground reset, you see one sense at a time and tap a dot for each thing you notice, so there's nothing to type. I also added a Journal where a companion replies to what you write, and a History page where you can see your past resets and reopen old journal entries. The "Need help now" button stays at the top of every screen.
 
-- **Breath reset:** a circle grows for 4 seconds and shrinks for 6, six times, with a countdown. Before starting, the person can choose to follow along with just the circle, the microphone, or press and hold.
-- **Ground reset:** one sense per screen, and the person taps a dot each time they notice something instead of typing it.
-- **Journal:** a separate, optional space where a journaling companion replies briefly. It uses a system prompt of about 170 lines and gets short context from what the person already did in the app.
-- **History:** lists every reset (Done or Stopped, with length) and every journal entry, which can be opened and read. There is a button to clear everything.
-- **Need help now:** in the header of every screen. It opens crisis resources that are built into the page.
+## What I changed after talking to my instructor
 
-## Changes after meeting with my instructor
+After 3.1, my instructor gave me a few ideas: have the app notice when you're breathing, add a journaling chatbot with a long and careful system prompt, add modes, let people talk instead of type, and try drawing with the vision API. I couldn't do all of that well in one week, so I picked two for this part.
 
-My instructor suggested several ideas: letting the app notice that you're breathing, a journaling-style chatbot with a long and careful system prompt, modes, voice, and drawing with vision feedback. I chose two for this part.
+The first one is breath sensing. Before the Breath reset starts, you choose how to follow along: just the circle, the microphone, or pressing and holding the circle. With the microphone, the app listens to the room for the first 3 seconds and then listens for the sound of breathing out. With press and hold, you hold the circle while you breathe in and let go when you breathe out. When your breath matches, a small "with you" shows up. I added the hold option for people who don't want to turn on their mic. I also never show a count at the end, like "5 of 6," because that would feel like a score, and D3 says being asked to perform is part of the emotional cost. The sound is only checked inside the browser and is never recorded or saved, and the screen says so, because the app can't seem like it's watching anyone.
 
-**Breath sensing.** I added two optional ways for the app to follow along. With the microphone, the browser learns the room's background sound during the 3-second intro and then listens for a breath-out sound during each exhale. With press and hold, the person holds the circle while breathing in and lets go while breathing out. When a breath matches, a soft "with you" appears. I kept "just the circle" as an option (R4), and I never show a count afterward, because a score would add pressure (D3). The microphone sound is analyzed only in the browser and is never recorded or sent, and the screen says so, since the app must not seem to monitor anyone.
+The second one is the Journal. A chatbot asks people to type and talk about their feelings, which is exactly the kind of effort D3 warns about. That's why I kept it as its own optional space on the home screen instead of putting it inside the exercises. It has a few optional prompts to help people start and an "I'm done" button. The system prompt is about 170 lines long. It turns the D6 findings into rules (no clinical words, no cheerful phrasing, no "you should"), keeps replies to a few sentences, only suggests the app's own two skills, and includes real resources like 988 and the Crisis Text Line. To personalize without making anyone fill out a profile (D5), the companion sees how many resets you did this week and how your last three entries started. If you don't want that, you can turn it off with a checkbox.
 
-**Journal mode.** A chatbot asks people to type and share feelings, which is the emotional cost that D3 warns about. For that reason, I kept the Journal outside the exercises as its own optional space, with optional starter prompts and an "I'm done" button. The system prompt turns the D6 findings into concrete rules (no clinical words, no cheerful phrasing, no "you should"), keeps replies to two to four sentences with at most one question, offers only the app's own two skills, and lists real resources such as 988 and the Crisis Text Line. For personalization without setup (D5), the companion sees how many resets the person finished this week and the first lines of their last three entries. A checkbox in the Journal turns the second part off.
+I left voice and drawing for 3.3. With voice, I want to be careful, because a voice that sounds like a real person could make the app feel like therapy. With drawing, I still need to figure out whether getting comments on a drawing would make people feel judged.
 
-I left voice and drawing for Part 3.3. I want to test voice carefully, because a voice that sounds like a person could make the app feel like therapy. I also still need to decide whether drawing with model feedback would feel like being judged.
+## What the AI does and where I limited it
 
-## What the model contributes, and its limits
+The model writes the welcome line on the home screen, a short line after each reset, and the Journal replies. My code controls everything else: the steps, the timing, the Stop button, the crisis panel, and what gets saved. Every reply also goes through a filter in my code. If the model uses clinical words, says it's a therapist, or suggests anyone is watching, the reply gets swapped for a pre-written line. If the model doesn't answer in time (3 seconds for short lines, 12 for the Journal), the app shows a pre-written line too.
 
-The model writes the opening line on the home screen, the closing line after a reset, and the Journal replies. The skill steps, timing, Stop button, crisis panel, and saved data are all controlled by my code. Every reply passes through a filter in code that blocks clinical words, therapist claims, and monitoring language, and replaces the reply with a fixed line if it breaks those rules. Short lines time out after 3 seconds and Journal replies after 12, and any error leads to a fixed fallback line.
+One important thing: everything I tested for this part uses mock replies, which are pre-written answers that stand in for the model. I don't have an API key yet, so I haven't run the live model. The code for it is ready, it stops after 50 calls, and the database keeps a record of every call and any error.
 
-All evidence for this part uses **mock replies**. I don't have an API key yet, so the live path has not been run. The code for it is in place (`LLM_MODE=live`), it is capped at 50 calls per server run, and the `llm_calls` table records every call, its mode, and any error.
+## What my evidence shows
 
-## What the evidence shows
+The data is saved in SQLite. After my test run, the database had 7 sessions (two finished breath resets, one stopped breath reset, one finished ground reset, and three journal conversations), 11 messages, and 15 model calls. Each message shows where it came from, whether that's the user, a mock reply, a fallback line, or the fixed crisis message.
 
-**Persistence in SQLite.** After the browser run, the database contained 7 sessions (2 completed breath resets, 1 stopped breath reset, 1 completed ground reset, and 3 journal conversations), 11 messages with their source (`mock`, `fallback`, `static`, or `user`), and 15 logged model calls. The Journal conversation can be reopened from History.
+The timing matches my plan. I measured the Breath reset from the first instruction to the last step, and it took 66.01 seconds both times, against a planned 66. No network calls happen during the exercise, so the app didn't add any delay. When I opened the crisis panel in the middle of an exercise, the exercise paused, and the 3 seconds I spent in the panel were saved separately. The Ground reset is planned at 55.5 seconds, or about 78 if someone takes 4 seconds per item. My test only took 19.7 seconds because the script tapped much faster than a real person would. Opening the app and choosing a skill is counted separately.
 
-**Measured duration.** Measured in the browser from the first exercise instruction to the end of the last planned step, the Breath reset took 66.013 and 66.014 seconds against a 66-second plan. There are no network calls during the exercise, so the app added no delay. When the crisis panel was opened during an exercise, the exercise paused, and the 3.08 seconds spent in the panel were saved separately from the exercise time. The Ground reset is planned at 55.5 seconds (about 78 seconds at 4 seconds per item). The test run took 19.7 seconds because the script tapped much faster than a person would. Entry time is reported separately.
+The crisis button always worked. It opened inside an exercise, after I made the model fail on purpose, and even with the backend turned off completely (screenshots 07, 16, and 20).
 
-**Independent crisis route.** The Need help now panel opened inside an exercise, after the model was switched to fail, and with the backend completely stopped (screenshots 07, 16, and 20).
+Crisis-related messages never reach the model. When I wrote "I don't want to be alive anymore" in the Journal, the crisis panel opened right away, a fixed message appeared, and the database shows the model was never called. Sports expressions like "this training block is killing me" didn't set it off.
 
-**Crisis-related input.** When the Journal received "I don't want to be alive anymore," the crisis panel opened immediately, a fixed message was shown, both messages were saved with `crisis_flag = 1`, and the `llm_calls` table shows the model was not called. Sports expressions such as "this training block is killing me" did not trigger it.
+The app handles failures. When I set the model to fail, the home screen and the Journal both used their backup lines, and the message I wrote was still saved. With the backend turned off, the exercises still ran and just said they weren't being saved.
 
-**When a request fails.** With the model set to fail, the home screen used its fallback line, and the Journal showed "I'm having trouble replying right now. Your words are saved here," while still saving the person's message. With the backend stopped, the exercises still run with built-in steps and say they are not being saved.
+Leaving is easy and costs nothing. Pressing Stop shows "You stopped. That's fine." and saves the session as stopped. In the Journal, "I'm done" takes you back home.
 
-**When the user leaves.** Stop leads to "You stopped. That's fine." and saves the session as `stopped` with the number of steps completed. "I'm done" in the Journal returns home and closes the session.
+All 20 automated tests pass, using mock replies.
 
-**Automated tests.** Twenty tests pass, all with mock replies. They cover fixed steps and timing, persistence, "Your usual", crisis input never reaching the model, sports expressions, model failure, memory turned off, clearing history, and the output filter.
+## A mistake I found
 
-## A failure I found
+After my first full Breath reset, the last screen showed the backup line even though nothing had failed. The database showed that the mock reply came through fine but was saved as a fallback, so I knew the problem was in my filter. It turned out one of my own pre-written lines said "Nothing else you need to do," and my filter blocks "you need to." The filter was doing its job, and the line was the problem. I changed the line and added a test that checks every pre-written line against the filter, so this can't happen again without a test failing. The evidence log has this and two other things I had to fix while testing.
 
-After the first full Breath reset, the Done screen showed the fallback line even though nothing had failed. The database showed that the mock call succeeded but the saved message had `source = fallback`, so the problem was in my output filter. One of my own mock lines said "Nothing else you need to do," and the filter blocks "you need to." I kept the filter, changed the line, and added a test that every mock line must pass the filter. The full account is in the evidence log, along with two other revised approaches from testing.
+## What's still unfinished
 
-## What remains unfinished
-
-- Live model testing, which requires an API key
-- Voice input and output, and the drawing idea (planned for 3.3)
-- Testing breath sensing with a real microphone in real rooms. The test used a simulated sound injected into the page.
-- Testing in browsers other than Chromium
-- A larger crisis phrase list and a fair way to test what it misses. One known miss ("I just want to disappear for good") is kept as a test so the limit stays visible.
-- The UI research review of existing breathing and grounding apps
-- The full evaluation with fifteen scenarios and live-model variation (Part 3.3)
+- Trying the live model, once I have an API key
+- Voice and drawing, planned for 3.3
+- Testing breath sensing with a real microphone, since my test used a simulated breathing sound
+- Testing in browsers other than Chrome
+- Making the crisis phrase list bigger and finding a fair way to test what it misses. One phrase it misses ("I just want to disappear for good") is saved as a test so I don't forget about it.
+- Looking at other breathing and grounding apps for ideas
+- The full evaluation with 15 scenarios, planned for 3.3
