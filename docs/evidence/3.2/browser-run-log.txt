@@ -1,0 +1,29 @@
+screenshot 01-home-first-visit.png
+screenshot 02-breath-setup-hold.png
+screenshot 03-breath-inhale-holding.png
+screenshot 04-breath-exhale-heard.png
+breath (hold) wall clock in browser test: 66.5s including setup
+screenshot 05-done-closing-line.png
+screenshot 06-breath-mic-heard.png
+screenshot 07-crisis-panel-during-exercise.png
+screenshot 08-exercise-after-crisis-panel.png
+screenshot 09-stopped.png
+screenshot 10-ground-feel-2-of-4.png
+screenshot 11-home-your-usual.png
+screenshot 12-journal-empty.png
+screenshot 13-journal-conversation.png
+screenshot 14-journal-crisis-input-panel.png
+screenshot 15-journal-crisis-message.png
+screenshot 16-model-failed-fallback-and-crisis-panel.png
+screenshot 17-model-failed-fallback-reply.png
+screenshot 18-history.png
+screenshot 19-history-journal-entry.png
+screenshot 20-backend-down-crisis-panel-works.png
+screenshot 21-backend-down-exercise-still-runs.png
+
+Console timing logs from the browser:
+[Reset] breath timing {"wall_ms":66013,"active_ms":66013,"paused_ms":0,"planned_ms":66000,"phases":[{"phase":"intro-","at_ms":15},{"phase":"in-0","at_ms":3015},{"phase":"out-0","at_ms":7015},{"phase":"in-1","at_ms":13015},{"phase":"out-1","at_ms":17015},{"phase":"in-2","at_ms":23014},{"phase":"out-2","at_ms":27014},{"phase":"in-3","at_ms":33014},{"phase":"out-3","at_ms":37014},{"phase":"in-4","at_ms":43014},{"phase":"out-4","at_ms":47013},{"phase":"in-5","at_ms":53013},{"phase":"out-5","at_ms":57013},{"phase":"close-","at_ms":63013}]}
+[Reset] breath timing {"wall_ms":66013,"active_ms":66014,"paused_ms":0,"planned_ms":66000,"phases":[{"phase":"intro-","at_ms":-2},{"phase":"in-0","at_ms":3015},{"phase":"out-0","at_ms":7015},{"phase":"in-1","at_ms":13015},{"phase":"out-1","at_ms":17014},{"phase":"in-2","at_ms":23014},{"phase":"out-2","at_ms":27014},{"phase":"in-3","at_ms":33014},{"phase":"out-3","at_ms":37014},{"phase":"in-4","at_ms":43013},{"phase":"out-4","at_ms":47013},{"phase":"in-5","at_ms":53013},{"phase":"out-5","at_ms":57013},{"phase":"close-","at_ms":63013}]}
+[Reset] breath timing {"wall_ms":9986,"active_ms":6898,"paused_ms":3083,"planned_ms":66000,"phases":[{"phase":"intro-","at_ms":15},{"phase":"in-0","at_ms":3014}]}
+[Reset] ground timing {"wall_ms":19718,"active_ms":19718,"paused_ms":0,"steps":[{"step":1,"at_ms":0},{"step":2,"at_ms":3000},{"step":3,"at_ms":7635},{"step":4,"at_ms":12068},{"step":5,"at_ms":15535},{"step":6,"at_ms":18085}]}
+[Reset] breath timing {"wall_ms":5053,"active_ms":5049,"paused_ms":0,"planned_ms":66000,"phases":[{"phase":"intro-","at_ms":16},{"phase":"in-0","at_ms":3016}]}

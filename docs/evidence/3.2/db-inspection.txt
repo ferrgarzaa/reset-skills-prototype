@@ -1,0 +1,66 @@
+# Database: reset.db
+
+sqlite> SELECT id, kind, status, steps_completed AS steps, duration_s, sensing, breaths_detected AS heard, feedback, was_usual FROM sessions;
+id  kind     status     steps  duration_s  sensing  heard  feedback  was_usual
+--  -------  ---------  -----  ----------  -------  -----  --------  ---------
+1   breath   completed  8      66.013      hold     6      helped    0        
+2   breath   completed  8      66.014      mic      6                0        
+3   breath   stopped    1      6.898       none                      0        
+4   ground   completed  6      19.718                                0        
+5   journal  completed  0      0.287409                              0        
+6   journal  completed  0      0.567073                              0        
+7   journal  completed  0      1.117866                              0        
+
+sqlite> SELECT id, session_id, role, source, purpose, crisis_flag, substr(content, 1, 60) AS content FROM messages;
+id  session_id  role       source    purpose  crisis_flag  content                                                     
+--  ----------  ---------  --------  -------  -----------  ------------------------------------------------------------
+1   1           assistant  fallback  closing  0            That's the reset. Take your time.                           
+2   2           assistant  mock      closing  0            Done for now. You can come back whenever you want.          
+3   4           assistant  mock      closing  0            Done for now. You can come back whenever you want.          
+4   5           user       user      chat     0            Long run went bad today. My legs are dead and I'm annoyed at
+5   5           assistant  mock      chat     0            That sounds frustrating after putting in the effort. Rough d
+6   5           user       user      chat     0            Honestly this training block is killing me, I'm so tired.   
+7   5           assistant  mock      chat     0            That sounds really draining. It makes sense to feel worn dow
+8   6           user       user      chat     1            I don't want to be alive anymore                            
+9   6           assistant  static    chat     1            It sounds like things are really heavy right now. This app c
+10  7           user       user      chat     0            Rough day at practice.                                      
+11  7           assistant  fallback  chat     0            I'm having trouble replying right now. Your words are saved 
+
+sqlite> SELECT id, purpose, mode, ok, latency_ms, error FROM llm_calls;
+id  purpose  mode  ok  latency_ms  error                                  
+--  -------  ----  --  ----------  ---------------------------------------
+1   opening  mock  1   0                                                  
+2   closing  mock  1   0                                                  
+3   opening  mock  1   0                                                  
+4   closing  mock  1   0                                                  
+5   opening  mock  1   0                                                  
+6   opening  mock  1   0                                                  
+7   closing  mock  1   0                                                  
+8   opening  mock  1   0                                                  
+9   journal  mock  1   0                                                  
+10  journal  mock  1   0                                                  
+11  opening  mock  1   0                                                  
+12  opening  mock  1   0                                                  
+13  opening  fail  0   0           simulated model failure (LLM_MODE=fail)
+14  journal  fail  0   0           simulated model failure (LLM_MODE=fail)
+15  opening  fail  0   0           simulated model failure (LLM_MODE=fail)
+
+sqlite> SELECT skill, SUM(duration_s) AS planned_seconds FROM skill_steps GROUP BY skill;
+skill   planned_seconds
+------  ---------------
+breath  66.0           
+ground  55.5           
+
+sqlite> SELECT id, kind, json_extract(timing_json, '$.wall_ms') AS wall_ms, json_extract(timing_json, '$.active_ms') AS active_ms, json_extract(timing_json, '$.paused_ms') AS paused_ms FROM sessions WHERE timing_json IS NOT NULL;
+id  kind    wall_ms  active_ms  paused_ms
+--  ------  -------  ---------  ---------
+1   breath  66013    66013      0        
+2   breath  66013    66014      0        
+3   breath  9986     6898       3083     
+4   ground  19718    19718      0        
+
+sqlite> SELECT * FROM prefs;
+key               value 
+----------------  ------
+remember_journal  true  
+last_sensing      "none"

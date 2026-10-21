@@ -1,6 +1,6 @@
 # Reset: Skills Prototype (Assignment 3)
 
-A coursework prototype for two short skills: **Breath reset** (paced breathing 4–6) and **Ground reset** (5-4-3-2-1 grounding with taps).
+A coursework prototype with two short skills, **Breath reset** (paced breathing, 4 in and 6 out, with optional microphone or press-and-hold sensing) and **Ground reset** (5-4-3-2-1 grounding by tapping), plus a **Journal** with a calm journaling companion.
 
 > **This is a class project.** It is not a mental health tool, does not provide therapy, and nobody monitors it. It is tested only with fictional scenarios. Do not share it or recommend it to anyone as support during a hard moment.
 
@@ -8,39 +8,56 @@ A coursework prototype for two short skills: **Breath reset** (paced breathing 4
 
 | Part | Status |
 |---|---|
-| 3.1 Research and Design | Design notes done; no app code yet |
-| 3.2 Working Application and Safety | Not started |
+| 3.1 Research and Design | Done. [Report](reports/3.1/report.md) |
+| 3.2 Working Application and Safety | Done with mocked model replies. [Report](reports/3.2/report.md), [evidence](docs/evidence/3.2/README.md) |
 | 3.3 Integration and Evaluation | Not started |
 
-## Where things are
+## Run it
 
-- `docs/design.md`: concept, flow diagram, screen sketches, decisions linked to R1–R4 / D1–D6, model role, crisis route, timing, data model, open questions
-- `docs/evidence-log.md`: decisions, revised approaches, tests
-- `AGENTS.md`: rules for the coding agent
-- `AI-USE.md`: AI tools used and how
-- `report.md`: Part 3.1 submission report
+You need Python 3.11+ and Node 18+.
 
-## Planned stack
-
-- Frontend: Vue 3 (Vite) in `frontend/`
-- Backend: FastAPI (Python 3.11+) in `backend/`
-- Database: SQLite file in `backend/data/reset.db` (ignored by git)
-- Model: Anthropic API (Claude), called only from the backend
-
-## How to run (to be filled in Part 3.2)
+**Backend** (terminal 1):
 
 ```bash
-# backend
 cd backend
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env        # add ANTHROPIC_API_KEY, or set MOCK_LLM=1
-uvicorn app.main:app --reload
+cp .env.example .env               # Windows: copy .env.example .env
+uvicorn app.main:app --reload --port 8000
+```
 
-# frontend
+**Frontend** (terminal 2):
+
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Planned environment variables: `ANTHROPIC_API_KEY`, `MODEL_ID` (default `claude-haiku-5-5`), `MOCK_LLM` (1 = use saved responses, no API calls), `LLM_CALL_LIMIT` (default 50, for peer testing).
+Open http://localhost:5173.
+
+The backend runs in `LLM_MODE=mock` by default, so no API key is needed. To use the live model, set `LLM_MODE=live` and `ANTHROPIC_API_KEY=...` in `backend/.env`. Live calls stop after `LLM_CALL_LIMIT` (default 50) and the app switches to mock replies.
+
+To see what happens when the model fails, open History, then Prototype tools, then choose **fail**. This only works when `DEV_ENDPOINTS=1`.
+
+## Tests and inspection
+
+```bash
+cd backend
+python -m pytest -q                # all tests use mocked replies
+python tools/inspect_db.py         # prints the SQLite tables
+```
+
+## Where things are
+
+- `docs/design.md`: design, decisions linked to R1–R4 and D1–D6, model role, crisis route, timing, data, and the 3.2 changes (section 12)
+- `docs/evidence/`: screenshots, database output, test results
+- `docs/evidence-log.md`: decisions, revised approaches, failures
+- `backend/app/prompts/journal_system.md`: the Journal system prompt
+- `AGENTS.md`: rules for the coding agent
+- `AI-USE.md`: AI tools used and how
+
+## Planned stack
+
+Vue 3 (Vite), FastAPI, SQLite, and the Anthropic API (Claude, called only from the backend).

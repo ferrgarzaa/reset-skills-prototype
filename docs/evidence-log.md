@@ -24,3 +24,32 @@ I first wanted the app to feel sporty and energetic. Then I realized coach-style
 ### What I want to try in 3.2
 - Time the breathing circle with real timestamps (my estimate is about 66 seconds).
 - Run athletic expressions like "this workout is killing me" through the crisis keyword list to see how many false alarms I get.
+
+## Part 3.2
+
+### Oct 20: Meeting with my instructor
+My instructor suggested: letting the app notice that I'm breathing, a journaling-style chatbot with a long system prompt that uses real resources and never judges, modes, talking instead of typing, and something interactive with the vision API, like drawing. I picked breath sensing and the Journal for 3.2, and left voice and drawing for 3.3 so I could build fewer things well. For breath sensing I wanted both a microphone option and press-and-hold, because some people won't want to turn on their mic.
+
+### Tension I had to resolve: a bigger chatbot vs. D2 and D3
+A chatbot asks people to type and share feelings, which is the emotional cost D3 warns about. So I kept the Journal as its own optional space on the home screen, outside the exercises, with optional starter prompts and an "I'm done" button. The exercises themselves didn't change.
+
+### Failure found: my own mock line was blocked by my own filter
+- **What happened:** after the first full Breath reset in the browser, the Done screen showed the fallback line, even though the model was in mock mode and nothing had failed.
+- **Evidence:** in the database, `messages.source` was `fallback` for that closing line, but `llm_calls` showed the mock call succeeded (`ok = 1`). So the problem happened after the call. The mock line "Nothing else you need to do" contains "you need to", which `clean_reply()` blocks for short lines.
+- **Decision:** I kept the filter and changed the line, then added a test that checks every mock line passes the filter.
+
+### Revised approach: testing the microphone
+- **First try:** a generated audio file played through Chromium's fake microphone, with quiet inhales and noisy exhales. It passed once and failed the next time. The file loops on its own clock, so the noise didn't always line up with the exhales, and once the room calibration happened during the noise.
+- **Revised to:** the test script replaces the microphone with generated noise that it switches on during each exhale. That makes the test repeatable. It is still a simulation, and a real microphone is untested.
+
+### Revised approach: stopping the backend during the test
+The first version of the test stopped the backend with `pkill -f "uvicorn app.main:app"`. That pattern also matched the shell command running the test, so it stopped the test itself. I changed it to stop the exact process ID saved when the backend started.
+
+### Small bug: timing log started in the wrong phase
+In one run, the phase log for the Breath reset started with "close" at 0 ms. The first animation frame's timestamp can be slightly earlier than the start time, which made the elapsed time negative for one frame. I clamped the frame time to zero or more. The measured total was not affected (66.013 s).
+
+### Results
+- 20 automated tests pass, all with mock replies.
+- Breath reset measured at 66.01 s against a 66 s plan, in two runs.
+- Crisis panel worked inside an exercise, after a model failure, and with the backend stopped.
+- No live model calls yet, because I don't have an API key.

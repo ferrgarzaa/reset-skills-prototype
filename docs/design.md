@@ -106,6 +106,8 @@ What the app actually knows: which button you tapped, timing, whether you stoppe
 
 ## 6. What the AI does and doesn't do
 
+*Updated in 3.2: the optional note became a full Journal mode. See section 12.*
+
 I'm using Claude through the Anthropic API. The plan is `claude-haiku-5-5`, set in an environment variable so I can change it. Only the backend talks to the AI, never the browser.
 
 What the AI does:
@@ -219,3 +221,63 @@ What I give up: there's no settings page, so you can't, for example, change brea
 ## 11. Reuse
 
 I'm starting from scratch. I'll use the same stack and patterns from class (Vue, FastAPI, SQLite, a backend route that calls the AI, and saved conversation history like in the RAG activity), but I'm not copying code from A1, A2, or the RAG activity.
+
+## 12. Changes in Part 3.2
+
+After Part 3.1, I met with my instructor and got several suggestions: let the app notice that you're breathing, add a chatbot part with a journaling style and a long, careful system prompt, add modes, let people talk to the app instead of typing, and try something interactive with the vision API, like drawing. I couldn't do all of it well in one week, so I chose two for 3.2 and left the rest for 3.3.
+
+### What I added
+
+**Breath sensing (optional).** Before a Breath reset starts, the person picks how to follow along: just the circle, the microphone, or press and hold. With the microphone, the browser measures how loud the sound is a few times per second. During the 3-second intro it learns the room's background level, and during each exhale it looks for a breath-out sound. When it hears one, the circle shows a soft "with you" note. With press and hold, the person holds the circle while breathing in and lets go while breathing out. The hold option is there for people who don't want to turn on the microphone, or whose microphone doesn't work.
+
+Why this fits the findings:
+- It is a choice, and "just the circle" is always there (R4).
+- It never turns into a score. The app saves how many breaths it noticed, but it never shows a number like "5 of 6" afterward (D3, and the no-scores rule).
+- The microphone sound is only checked in the browser and is never recorded or sent. The screen says so, because the app must not seem like it is monitoring anyone.
+- The choice is remembered for next time, so nobody has to set it up again (D5).
+
+Limits: fans, music, or a noisy room can sound like breathing, and quiet breathers or far-away mics may not be heard. That's why it only gives a gentle cue and never decides anything.
+
+**Journal mode.** The Journal is a separate space on the home screen, below the two resets. It is not part of the exercises, so the exercises stay short and simple (D2, R1). The model's role is bigger here than in my 3.1 plan, which only had one reply to a short note. The system prompt is in `backend/app/prompts/journal_system.md` (about 170 lines). It covers what the companion is and isn't, tone rules taken from D6, reply length, reflecting and validating, optional writing prompts, offering the app's two skills, how to use personal context, sports talk, safety, real resources (988, Crisis Text Line, NAMI HelpLine, SAMHSA), and permission to stop.
+
+**Personal context without setup.** Instead of asking people to fill out a profile, the companion gets a short CONTEXT block built from what they already did in the app: how many resets they finished this week and the first lines of their last three journal entries. A checkbox under the Journal ("Let the companion see my past journal entries") turns the second part off. The prompt tells the model to describe these as things the person wrote in the app, never as something it noticed or tracked.
+
+### How safety works in the Journal
+
+The same rules from section 7 apply, with more text to check:
+1. Before any model call, the message is checked against the crisis phrase list, both in the browser (so the panel opens right away, even with the server down) and in the backend.
+2. On a match, the model is not called, a fixed message is shown, the crisis panel opens, and the message is saved with `crisis_flag = 1`.
+3. Crisis-flagged messages are never added to later model context.
+4. Every model reply goes through `clean_reply()` in `backend/app/safety.py`. Clinical words, therapist claims, and monitoring language are blocked, exclamation marks and emojis are removed, and replies over 110 words are replaced with a fallback.
+5. If the model fails or takes longer than 12 seconds, the person sees "I'm having trouble replying right now. Your words are saved here." Their message is still saved.
+
+### What I left for 3.3
+
+- **Voice input and output.** Many people prefer talking to typing, and the assignment allows speech if I test it and keep a typed alternative. I want to do it carefully, because a voice that sounds like a person talking can make the app feel like therapy, which it must not claim to be.
+- **Drawing with vision feedback.** I need to work out how this connects to the research. Drawing could be a low-effort activity, but asking someone to make something the model then comments on could feel like being judged (D3, D6).
+- **Live model testing.** I don't have an API key yet, so everything in 3.2 uses mock replies.
+
+### Updated flow
+
+```mermaid
+flowchart TD
+    A[Open app] --> B[Home]
+    B -->|Breath reset| S[Setup: circle only / mic / hold]
+    S --> C[Breath: circle + optional sensing]
+    B -->|Ground reset| D[Ground: one sense per screen, taps]
+    B -->|Your usual| E{Usual skill}
+    E --> S
+    E --> D
+    B -->|Journal| J[Journal chat]
+    J -->|crisis phrase| L
+    J -->|I'm done| B
+    C --> F[Done: closing line + optional 1-tap]
+    D --> F
+    C -.->|Stop| G[Stopped: no consequence]
+    D -.->|Stop| G
+    F --> B
+    F -->|Write about it| J
+    G --> B
+    B --> H[History: resets + saved journal entries]
+    K[[Need help now: every screen]] -.-> L[Crisis panel: static, no server or model]
+```
