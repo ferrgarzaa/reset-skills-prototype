@@ -15,12 +15,64 @@
   ],
   "journal": {
     "rules": [
-      {"match": ["tired", "exhausted", "drained", "worn"], "reply": "That sounds really draining. It makes sense to feel worn down. Do you want to write a little more about what's been taking your energy?"},
-      {"match": ["exam", "test", "class", "grade", "school"], "reply": "That sounds stressful, and it makes sense that it's on your mind. One result doesn't define you. What's weighing on you most about it?"},
-      {"match": ["run", "race", "training", "workout", "practice", "legs"], "reply": "That sounds frustrating after putting in the effort. Rough days happen in training too. What's bugging you most about it?"},
-      {"match": ["anxious", "nervous", "panic", "stressed", "overwhelmed"], "reply": "That sounds like a lot to hold at once. If it would help, the Breath reset takes about a minute. Or you can keep writing here."},
-      {"match": ["done", "bye", "stop", "leave it"], "reply": "Okay. Thanks for writing today. It's all saved here whenever you want it."},
-      {"match": ["good", "okay", "fine", "better"], "reply": "I'm glad there's some okay in today. If you want, you could write about one small thing that helped."}
+      {
+        "match": [
+          "anxious",
+          "nervous",
+          "panic",
+          "stressed",
+          "overwhelmed"
+        ],
+        "reply": "That sounds like a lot to hold at once. If it would help, the Breath reset takes about a minute. Or you can keep writing here."
+      },
+      {
+        "match": [
+          "tired",
+          "exhausted",
+          "drained",
+          "worn"
+        ],
+        "reply": "That sounds really draining. It makes sense to feel worn down. Do you want to write a little more about what's been taking your energy?"
+      },
+      {
+        "match": [
+          "exam",
+          "test",
+          "class",
+          "grade",
+          "school"
+        ],
+        "reply": "That sounds stressful, and it makes sense that it's on your mind. One result doesn't define you. What's weighing on you most about it?"
+      },
+      {
+        "match": [
+          "run",
+          "race",
+          "training",
+          "workout",
+          "practice",
+          "legs"
+        ],
+        "reply": "That sounds frustrating after putting in the effort. Rough days happen in training too. What's bugging you most about it?"
+      },
+      {
+        "match": [
+          "done",
+          "bye",
+          "stop",
+          "leave it"
+        ],
+        "reply": "Okay. Thanks for writing today. It's all saved here whenever you want it."
+      },
+      {
+        "match": [
+          "good",
+          "okay",
+          "fine",
+          "better"
+        ],
+        "reply": "I'm glad there's some okay in today. If you want, you could write about one small thing that helped."
+      }
     ],
     "default": [
       "Thanks for putting that into words. What's taking up the most space in your head right now?",

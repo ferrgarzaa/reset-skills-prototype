@@ -1,6 +1,6 @@
 <script setup>
-import { ref, provide } from 'vue'
-import { IS_DEMO } from './lib/api.js'
+import { ref, provide, reactive, onMounted } from 'vue'
+import { api, IS_DEMO } from './lib/api.js'
 import CrisisPanel from './components/CrisisPanel.vue'
 import HomeView from './components/HomeView.vue'
 import BreathView from './components/BreathView.vue'
@@ -9,18 +9,53 @@ import DoneView from './components/DoneView.vue'
 import StoppedView from './components/StoppedView.vue'
 import JournalView from './components/JournalView.vue'
 import HistoryView from './components/HistoryView.vue'
+import ProfileView from './components/ProfileView.vue'
 
 const view = ref('home')
 const params = ref({})
 const crisisOpen = ref(false)
 
+// What the person chose to tell the app. Shared by every screen.
+const profile = reactive({ display_name: '', checkin: null, large_text: false, loaded: false })
+
+function applyTextSize() {
+  document.documentElement.classList.toggle('large-text', !!profile.large_text)
+}
+
+async function loadProfile() {
+  try {
+    Object.assign(profile, await api.profile(), { loaded: true })
+  } catch {
+    profile.loaded = true
+  }
+  applyTextSize()
+}
+
+async function setCheckin(state) {
+  profile.checkin = state === 'cleared' ? null : state
+  try { await api.checkin(state) } catch { /* still applies for this visit */ }
+}
+
+async function updateProfile(patch) {
+  try {
+    Object.assign(profile, await api.setProfile(patch))
+  } catch {
+    Object.assign(profile, patch)
+  }
+  applyTextSize()
+}
+
 function go(name, p = {}) {
   view.value = name
   params.value = p
   window.scrollTo(0, 0)
+  if (name === 'home' || name === 'profile') loadProfile()
 }
 
 provide('crisis', { open: () => (crisisOpen.value = true), isOpen: crisisOpen })
+provide('profile', { state: profile, setCheckin, updateProfile, reload: loadProfile })
+
+onMounted(loadProfile)
 </script>
 
 <template>
@@ -40,6 +75,7 @@ provide('crisis', { open: () => (crisisOpen.value = true), isOpen: crisisOpen })
     <StoppedView v-else-if="view === 'stopped'" @go="go" />
     <JournalView v-else-if="view === 'journal'" v-bind="params" @go="go" />
     <HistoryView v-else-if="view === 'history'" @go="go" />
+    <ProfileView v-else-if="view === 'profile'" @go="go" />
   </main>
 
   <CrisisPanel v-if="crisisOpen" @close="crisisOpen = false" />

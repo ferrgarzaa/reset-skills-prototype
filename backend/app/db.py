@@ -64,6 +64,12 @@ CREATE TABLE IF NOT EXISTS skill_steps (
     PRIMARY KEY (skill, step_order)
 );
 
+CREATE TABLE IF NOT EXISTS checkins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    state TEXT NOT NULL CHECK (state IN ('wound_up', 'scattered', 'low', 'okay', 'cleared')),
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS prefs (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL

@@ -125,3 +125,23 @@ def test_clear_history(client, tmp_path):
     client.delete("/api/history")
     assert db_rows(tmp_path, "SELECT * FROM sessions") == []
     assert db_rows(tmp_path, "SELECT * FROM messages") == []
+
+
+def test_checkin_and_profile_are_saved_and_shown(client):
+    client.put("/api/profile", json={"display_name": "Sofia", "favorite_activity": "running"})
+    client.post("/api/checkin", json={"state": "wound_up"})
+    p = client.get("/api/profile").json()
+    assert p["display_name"] == "Sofia" and p["checkin"] == "wound_up"
+    ctx = client.get("/api/journal/context").json()["context"]
+    assert "Sofia" in ctx and "running" in ctx and "wound up" in ctx
+    client.post("/api/checkin", json={"state": "cleared"})
+    assert client.get("/api/profile").json()["checkin"] is None
+
+
+def test_mock_journal_reply_uses_profile(client):
+    client.put("/api/profile", json={"display_name": "Sofia"})
+    sid = client.post("/api/sessions", json={"skill": "ground"}).json()["session_id"]
+    client.post(f"/api/sessions/{sid}/finish", json={"status": "completed"})
+    r = client.post("/api/journal/message", json={"text": "I feel overwhelmed before my race"}).json()
+    assert r["reply"].startswith("Thanks for writing, Sofia.")
+    assert "usual Ground reset" in r["reply"]

@@ -50,14 +50,17 @@
 
 * { box-sizing: border-box; }
 
+html { font-size: 17px; }
+html.large-text { font-size: 20px; }
+
 html, body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 17px;
   line-height: 1.5;
 }
+body { font-size: 1rem; }
 
 button {
   font: inherit;

@@ -281,3 +281,22 @@ flowchart TD
     B --> H[History: resets + saved journal entries]
     K[[Need help now: every screen]] -.-> L[Crisis panel: static, no server or model]
 ```
+
+## 13. Changes for the in-class presentation (Oct 29)
+
+The presentation rubric asks for four things the 3.2 version only partly showed, so I added them.
+
+**Optional check-in that changes the screen.** The home screen now asks "How are things right now? Optional, and you can skip it." with four plain choices: Wound up, Scattered, Low, Okay. The app never guesses this; it only uses what the person taps. What changes:
+- Wound up: the screen shows only one suggestion, Breath reset, plus "Show all options". This is my version of D1 (show less when things are harder), based on the person's own words instead of a detector.
+- Scattered: Ground reset moves to the top as the suggestion.
+- Low: Journal moves to the top as the suggestion.
+- Okay or skipped: the normal home screen.
+The person can always tap Change, Clear, or Show all options (R4). These mappings are my assumptions, not research findings, and the suggestion text avoids promising that a skill will help. A check-in only counts for about three hours, so an old answer doesn't keep shaping the screen.
+
+**A visible profile ("You" page).** It shows everything the app keeps: the optional name and "something you enjoy", which the person types, and what the app learned from use: usual reset, resets finished and stopped, last breath follow-along option, journal entries, recent check-ins, and first visit. It also has a "See exactly what the journaling companion is told about me" button that prints the real CONTEXT block. This keeps D5 (no setup needed, but everything is visible and editable) and avoids the app feeling like it is watching.
+
+**Chatbot personalization.** The companion's context now includes the name, the activity, the check-in, and the usual reset, on top of the weekly resets and earlier entries. The prompt explains how to use each one (section 9 of the prompt). The mock replies now use the same context, for example "Thanks for writing, Sofia... your usual Breath reset is there", so the demo shows how personalization works without a live API key.
+
+**Interaction modes and accessibility.** Journal now has "Speak instead", which uses the browser's speech recognition and puts the words in the text box so the person can check them before sending (typing always works). The "You" page has a Larger text setting. These sit on top of what was already there: taps instead of typing in grounding, press and hold as an alternative to the microphone, 44 px touch targets, live-region cues for screen readers, reduced-motion support, and dark mode.
+
+**Demo data.** "Load example user" under Prototype tools on the "You" page loads a made-up user, Sofia, with a week of example history, so the presentation can show personalization over time. It only works with `DEV_ENDPOINTS=1`.

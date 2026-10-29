@@ -40,6 +40,12 @@ export const api = {
   prefs: () => request('GET', '/prefs'),
   setPrefs: (p) => request('PUT', '/prefs', p),
   setLlmMode: (mode) => request('POST', '/dev/llm-mode', { mode }),
+  checkin: (state) => request('POST', '/checkin', { state }),
+  profile: () => request('GET', '/profile'),
+  setProfile: (p) => request('PUT', '/profile', p),
+  journalContext: (sessionId) =>
+    request('GET', `/journal/context${sessionId ? `?session_id=${sessionId}` : ''}`),
+  seedDemo: () => request('POST', '/dev/seed-demo'),
 }
 
 export const IS_DEMO = DEMO

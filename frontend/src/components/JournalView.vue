@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, onMounted, inject } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount, inject } from 'vue'
 import { api } from '../lib/api.js'
 import { crisisMatch } from '../lib/crisis.js'
 
@@ -23,6 +23,50 @@ onMounted(async () => {
   try { remember.value = (await api.prefs()).remember_journal } catch { /* keep default */ }
 })
 
+// ---- Voice input (optional). Uses the browser's speech recognition, so it works in
+// Chrome and Edge. The words go into the text box for the person to check before
+// sending. Nothing is sent automatically, and typing always works.
+const SR = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)
+const canSpeak = !!SR
+const listening = ref(false)
+const voiceNote = ref('')
+let rec = null
+let base = ''
+
+function toggleVoice() {
+  if (listening.value) { rec?.stop(); return }
+  voiceNote.value = ''
+  rec = new SR()
+  rec.lang = 'en-US'
+  rec.interimResults = true
+  rec.continuous = true
+  base = draft.value ? draft.value.replace(/\s*$/, ' ') : ''
+  rec.onresult = (e) => {
+    let text = ''
+    for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript
+    draft.value = base + text
+  }
+  rec.onerror = (e) => {
+    voiceNote.value = e.error === 'not-allowed'
+      ? "The microphone isn't allowed here. You can type instead."
+      : "Couldn't hear that. You can try again or type instead."
+  }
+  rec.onend = () => { listening.value = false }
+  try { rec.start(); listening.value = true } catch { voiceNote.value = 'Voice input is not available right now.' }
+}
+onBeforeUnmount(() => rec?.stop())
+
+// ---- Transparency: show exactly what the companion is told.
+const showContext = ref(false)
+const contextText = ref('')
+async function toggleContext() {
+  showContext.value = !showContext.value
+  if (showContext.value) {
+    try { contextText.value = (await api.journalContext(sessionId.value)).context }
+    catch { contextText.value = 'Not available right now.' }
+  }
+}
+
 async function scrollDown() {
   await nextTick()
   listEl.value?.lastElementChild?.scrollIntoView({ block: 'end', behavior: 'smooth' })
@@ -36,6 +80,7 @@ function useStarter(s) {
 async function send() {
   const text = draft.value.trim()
   if (!text || sending.value) return
+  if (listening.value) rec?.stop()
   // Open the crisis panel immediately, before any network call (works even if backend is down).
   if (crisisMatch(text)) crisis.open()
   messages.value.push({ role: 'user', content: text })
@@ -96,8 +141,16 @@ async function done() {
     <div class="composer">
       <textarea id="journal-input" v-model="draft" rows="3" data-testid="journal-input"
         placeholder="Write as much or as little as you want" @keydown="onKey"></textarea>
-      <button class="btn btn-primary send" data-testid="journal-send" :disabled="!draft.trim() || sending"
-        @click="send">Send</button>
+      <div class="actions">
+        <button v-if="canSpeak" class="btn-quiet voice" :class="{ on: listening }" data-testid="voice"
+          :aria-pressed="listening" @click="toggleVoice">
+          {{ listening ? 'Listening… tap to stop' : 'Speak instead' }}
+        </button>
+        <button class="btn btn-primary send" data-testid="journal-send" :disabled="!draft.trim() || sending"
+          @click="send">Send</button>
+      </div>
+      <p v-if="voiceNote" class="small note">{{ voiceNote }}</p>
+      <p v-if="canSpeak && !voiceNote" class="small muted">Spoken words appear in the box so you can check them before sending.</p>
     </div>
 
     <div class="foot small">
@@ -107,6 +160,10 @@ async function done() {
       </label>
       <button class="btn-quiet" data-testid="journal-done" @click="done">I'm done</button>
     </div>
+    <button class="link small ctx-link" data-testid="journal-context" @click="toggleContext">
+      {{ showContext ? 'Hide' : 'What does the companion know about me?' }}
+    </button>
+    <pre v-if="showContext" class="context" data-testid="journal-context-text">{{ contextText }}</pre>
   </section>
 </template>
 
@@ -130,7 +187,21 @@ textarea {
   padding: 12px;
   resize: vertical;
 }
-.send { text-align: center; }
+.actions { display: flex; gap: 8px; }
+.send { text-align: center; flex: 1; }
+.voice { min-height: 48px; white-space: nowrap; }
+.voice.on { background: var(--accent-soft); color: var(--ink); border-color: var(--accent); }
+.note { color: var(--help); margin: 0; }
+.ctx-link { margin-top: 12px; }
+.context {
+  white-space: pre-wrap;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
 .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
 .foot input { accent-color: var(--accent); margin-right: 6px; }
 </style>

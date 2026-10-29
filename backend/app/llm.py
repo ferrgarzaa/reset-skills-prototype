@@ -57,16 +57,33 @@ def status() -> dict:
     }
 
 
-def _mock(purpose: str, messages: list[dict], usual: bool = False) -> str:
+SKILL_NAMES = {"breath": "Breath reset", "ground": "Ground reset"}
+
+
+def _mock(purpose: str, messages: list[dict], usual: bool = False, ctx: dict | None = None) -> str:
+    """Saved replies. For the journal they are lightly personalized from the same
+    context the live model receives, so the mock shows how context is used."""
     _State.mock_counter += 1
     i = _State.mock_counter
     if purpose == "journal":
+        ctx = ctx or {}
         last = messages[-1]["content"].lower() if messages else ""
+        reply = None
         for rule in MOCKS["journal"]["rules"]:
             if any(w in last for w in rule["match"]):
-                return rule["reply"]
-        d = MOCKS["journal"]["default"]
-        return d[i % len(d)]
+                reply = rule["reply"]
+                break
+        if reply is None:
+            d = MOCKS["journal"]["default"]
+            reply = d[i % len(d)]
+        usual_skill = ctx.get("usual")
+        if usual_skill and "the Breath reset takes about a minute" in reply:
+            reply = reply.replace("the Breath reset takes about a minute",
+                                  f"your usual {SKILL_NAMES[usual_skill]} is there and takes about a minute")
+        first_reply = sum(1 for m in messages if m["role"] == "assistant") == 0
+        if first_reply and ctx.get("name"):
+            reply = f"Thanks for writing, {ctx['name']}. " + reply
+        return reply
     key = "closing_usual" if (purpose == "closing" and usual) else purpose
     options = MOCKS[key]
     return options[i % len(options)]
@@ -86,7 +103,7 @@ def _live(system: str, messages: list[dict], max_tokens: int, timeout: float) ->
 
 
 def generate(purpose: str, messages: list[dict], system: str, max_tokens: int,
-             timeout: float, usual: bool = False) -> tuple[str, str]:
+             timeout: float, usual: bool = False, ctx: dict | None = None) -> tuple[str, str]:
     """Return (text, source) where source is 'model' or 'mock'. Raises LLMError."""
     mode = get_mode()
     if mode == "live" and _State.live_calls >= call_limit():
@@ -96,7 +113,7 @@ def generate(purpose: str, messages: list[dict], system: str, max_tokens: int,
         if mode == "fail":
             raise LLMError("simulated model failure (LLM_MODE=fail)")
         if mode == "mock":
-            text, source = _mock(purpose, messages, usual), "mock"
+            text, source = _mock(purpose, messages, usual, ctx), "mock"
         else:
             _State.live_calls += 1
             text, source = _live(system, messages, max_tokens, timeout), "model"

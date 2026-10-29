@@ -81,17 +81,54 @@ def _short_line(purpose, prompt, usual=False):
     return (FALLBACK_CLOSING if purpose == "closing" else FALLBACK_OPENING), "fallback"
 
 
+CHECKIN_LABELS = {
+    "wound_up": "wound up / tense",
+    "scattered": "scattered / hard to focus",
+    "low": "low / heavy",
+    "okay": "okay",
+}
+
+
+def _recent_checkin(conn, hours=3):
+    """The check-in the person chose in this visit, if any. Never inferred."""
+    since = (datetime.now(timezone.utc) - timedelta(hours=hours)).isoformat()
+    row = conn.execute("SELECT state, created_at FROM checkins WHERE created_at >= ? "
+                       "ORDER BY id DESC LIMIT 1", (since,)).fetchone()
+    if not row or row["state"] == "cleared":
+        return None
+    return row["state"]
+
+
+def _profile_facts(conn):
+    return {
+        "name": (db.get_pref(conn, "display_name", "") or "").strip()[:40],
+        "activity": (db.get_pref(conn, "favorite_activity", "") or "").strip()[:60],
+        "usual": _usual(conn),
+        "checkin": _recent_checkin(conn),
+    }
+
+
 def _journal_context(conn, current_session_id):
-    """The only personal information the model sees. Built from what the person
-    already did in the app. No profile, no settings."""
+    """The only personal information the model sees: what the person chose to
+    tell the app (name, activity, check-in) and what they already did in it."""
+    facts = _profile_facts(conn)
     lines = []
+    names = {"breath": "Breath reset", "ground": "Ground reset"}
+    if facts["name"]:
+        lines.append(f"They asked to be called: {facts['name']}.")
+    if facts["activity"]:
+        lines.append(f"Something they said they enjoy: {facts['activity']}.")
+    if facts["checkin"]:
+        lines.append(f"At the start of this visit they chose the check-in: {CHECKIN_LABELS[facts['checkin']]}. "
+                     "This is their own words for right now, not a diagnosis.")
+    if facts["usual"]:
+        lines.append(f"Their usual reset: {names[facts['usual']]}.")
     week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     resets = conn.execute(
         "SELECT kind, COUNT(*) n FROM sessions WHERE kind IN ('breath','ground') "
         "AND status='completed' AND started_at >= ? GROUP BY kind", (week_ago,)
     ).fetchall()
     if resets:
-        names = {"breath": "Breath reset", "ground": "Ground reset"}
         lines.append("Resets completed in the last 7 days: " +
                      ", ".join(f"{names[r['kind']]} x{r['n']}" for r in resets) + ".")
     if db.get_pref(conn, "remember_journal", True):
@@ -143,6 +180,17 @@ class JournalMessage(BaseModel):
 
 class Prefs(BaseModel):
     remember_journal: bool
+
+
+class Checkin(BaseModel):
+    state: str = Field(pattern="^(wound_up|scattered|low|okay|cleared)$")
+
+
+class ProfileUpdate(BaseModel):
+    display_name: str | None = Field(default=None, max_length=40)
+    favorite_activity: str | None = Field(default=None, max_length=60)
+    large_text: bool | None = None
+    remember_journal: bool | None = None
 
 
 class ModeSwitch(BaseModel):
@@ -249,13 +297,14 @@ def journal_message(body: JournalMessage):
                 "AND crisis_flag=0 ORDER BY id DESC LIMIT 20", (sid,))
         ][::-1]
         context = _journal_context(conn, sid)
+        facts = _profile_facts(conn)
     # Model must see a conversation that starts with the user.
     while history and history[0]["role"] != "user":
         history.pop(0)
     system = llm.JOURNAL_SYSTEM + "\n\n" + context
     try:
         reply, source = llm.generate("journal", history, system, max_tokens=300,
-                                     timeout=JOURNAL_TIMEOUT_S)
+                                     timeout=JOURNAL_TIMEOUT_S, ctx=facts)
         cleaned = safety.clean_reply(reply, max_words=110)
         if not cleaned:
             reply, source = FALLBACK_JOURNAL, "fallback"
@@ -309,6 +358,7 @@ def clear_history():
     with db.connect() as conn:
         conn.execute("DELETE FROM messages")
         conn.execute("DELETE FROM sessions")
+        conn.execute("DELETE FROM checkins")
     return {"ok": True}
 
 
@@ -322,6 +372,100 @@ def get_prefs():
 def put_prefs(body: Prefs):
     with db.connect() as conn:
         db.set_pref(conn, "remember_journal", body.remember_journal)
+    return {"ok": True}
+
+
+@app.post("/api/checkin")
+def checkin(body: Checkin):
+    """Optional, user-chosen check-in. It only reorders or narrows the home screen
+    for this visit; the person can change or clear it any time."""
+    with db.connect() as conn:
+        conn.execute("INSERT INTO checkins (state, created_at) VALUES (?, ?)", (body.state, db.now()))
+    return {"ok": True, "state": None if body.state == "cleared" else body.state}
+
+
+@app.get("/api/profile")
+def profile():
+    """Everything the app keeps about the person, shown back to them."""
+    with db.connect() as conn:
+        facts = _profile_facts(conn)
+        counts = {r["status"]: r["n"] for r in conn.execute(
+            "SELECT status, COUNT(*) n FROM sessions WHERE kind IN ('breath','ground') GROUP BY status")}
+        by_skill = {r["kind"]: r["n"] for r in conn.execute(
+            "SELECT kind, COUNT(*) n FROM sessions WHERE kind IN ('breath','ground') "
+            "AND status='completed' GROUP BY kind")}
+        journals = conn.execute(
+            "SELECT COUNT(DISTINCT session_id) FROM messages m JOIN sessions s ON s.id=m.session_id "
+            "WHERE s.kind='journal'").fetchone()[0]
+        first = conn.execute("SELECT MIN(started_at) FROM sessions").fetchone()[0]
+        checkins = [dict(r) for r in conn.execute(
+            "SELECT state, created_at FROM checkins WHERE state != 'cleared' ORDER BY id DESC LIMIT 5")]
+        return {
+            "display_name": facts["name"],
+            "favorite_activity": facts["activity"],
+            "usual": facts["usual"],
+            "checkin": facts["checkin"],
+            "recent_checkins": checkins,
+            "last_sensing": db.get_pref(conn, "last_sensing", "none"),
+            "large_text": db.get_pref(conn, "large_text", False),
+            "remember_journal": db.get_pref(conn, "remember_journal", True),
+            "resets_completed": counts.get("completed", 0),
+            "resets_stopped": counts.get("stopped", 0),
+            "completed_by_skill": by_skill,
+            "journal_entries": journals,
+            "first_seen": first,
+        }
+
+
+@app.put("/api/profile")
+def update_profile(body: ProfileUpdate):
+    with db.connect() as conn:
+        for key in ("display_name", "favorite_activity", "large_text", "remember_journal"):
+            val = getattr(body, key)
+            if val is not None:
+                db.set_pref(conn, key, val.strip() if isinstance(val, str) else val)
+    return profile()
+
+
+@app.get("/api/journal/context")
+def journal_context(session_id: int = -1):
+    """Shows the person exactly what the companion is told about them."""
+    with db.connect() as conn:
+        return {"context": _journal_context(conn, session_id)}
+
+
+# Dev-only: load a fictional persona's history so a demo can show personalization
+# without doing ten resets live. All data here is made up.
+@app.post("/api/dev/seed-demo")
+def dev_seed_demo():
+    if os.getenv("DEV_ENDPOINTS", "0") != "1":
+        raise HTTPException(404, "not found")
+    now = datetime.now(timezone.utc)
+    ago = lambda d, h=0: (now - timedelta(days=d, hours=h)).isoformat(timespec="seconds")  # noqa: E731
+    with db.connect() as conn:
+        for t in ("messages", "sessions", "checkins"):
+            conn.execute(f"DELETE FROM {t}")
+        db.set_pref(conn, "display_name", "Sofia")
+        db.set_pref(conn, "favorite_activity", "running, training for a half marathon")
+        db.set_pref(conn, "last_sensing", "hold")
+        rows = [
+            ("breath", ago(6), "completed", 8, 66.0, "hold", 5, "helped"),
+            ("ground", ago(5), "completed", 6, 61.2, None, None, "not_sure"),
+            ("breath", ago(3), "completed", 8, 66.0, "mic", 6, "helped"),
+            ("breath", ago(2), "stopped", 3, 21.4, "hold", 2, None),
+            ("breath", ago(1), "completed", 8, 66.0, "hold", 6, None),
+        ]
+        for kind, at, status, steps, dur, sensing, heard, fb in rows:
+            conn.execute(
+                "INSERT INTO sessions (kind, started_at, ended_at, status, steps_completed, duration_s, "
+                "sensing, breaths_detected, feedback) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (kind, at, at, status, steps, dur, sensing, heard, fb))
+        sid = conn.execute("INSERT INTO sessions (kind, started_at, ended_at, status, duration_s) "
+                           "VALUES ('journal', ?, ?, 'completed', 140)", (ago(2, 1), ago(2, 1))).lastrowid
+        db.add_message(conn, sid, "user", "Long run went bad today. My legs felt dead and I'm annoyed at myself.", "user")
+        db.add_message(conn, sid, "assistant", "That sounds frustrating after putting in the effort. Rough days happen in training too. What's bugging you most about it?", "mock")
+        for d, st in ((6, "wound_up"), (5, "scattered"), (3, "wound_up"), (1, "okay")):
+            conn.execute("INSERT INTO checkins (state, created_at) VALUES (?, ?)", (st, ago(d)))
     return {"ok": True}
 
 

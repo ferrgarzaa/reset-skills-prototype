@@ -53,3 +53,17 @@ In one run, the phase log for the Breath reset started with "close" at 0 ms. The
 - Breath reset measured at 66.01 s against a 66 s plan, in two runs.
 - Crisis panel worked inside an exercise, after a model failure, and with the backend stopped.
 - No live model calls yet, because I don't have an API key.
+
+## In-class presentation (Oct 29)
+
+### Checking the app against the presentation rubric
+I compared the app to the four presentation criteria. Skill walkthrough and chatbot tone were already covered. "User state and interface adaptation" and "user persona over time" were weak: the app only used history ("Your usual") and never asked anything about right now, and there was no place showing what is saved.
+
+### Decision: an optional check-in, after deciding against it in 3.1
+In 3.1 I decided against a mood check-in because rating feelings is an emotional cost (D3). The rubric asks for user state, so I added one, but kept it to a single optional tap with plain words, a clear "skip", and Change/Clear/Show all options. I think this keeps the cost low while still letting the screen adapt (D1) without guessing.
+
+### Bug found: rule order in the mock replies
+A test message "I feel overwhelmed before my race" got the training reply instead of the overwhelmed reply, because "race" matched the training rule first. I moved the overwhelmed rule to the top so the more important match wins, and the new test `test_mock_journal_reply_uses_profile` covers it.
+
+### Results
+22 automated tests pass (mocked). Screenshots of the new features are in `docs/evidence/presentation/`.

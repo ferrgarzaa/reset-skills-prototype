@@ -10,6 +10,7 @@ A coursework prototype with two short skills, **Breath reset** (paced breathing,
 |---|---|
 | 3.1 Research and Design | Done. [Report](reports/3.1/report.md) |
 | 3.2 Working Application and Safety | Done with mocked model replies. [Report](reports/3.2/report.md), [evidence](docs/evidence/3.2/README.md) |
+| In-class presentation | Check-in, "You" page, voice input in Journal, larger text. See design section 13 |
 | 3.3 Integration and Evaluation | Not started |
 
 ## Run it
