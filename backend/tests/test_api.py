@@ -145,3 +145,22 @@ def test_mock_journal_reply_uses_profile(client):
     r = client.post("/api/journal/message", json={"text": "I feel overwhelmed before my race"}).json()
     assert r["reply"].startswith("Thanks for writing, Sofia.")
     assert "usual Ground reset" in r["reply"]
+
+
+def test_unsafe_model_reply_is_replaced(client, tmp_path, monkeypatch):
+    # Stand-in for a bad live reply: clinical label + exclamation.
+    from app import llm
+    monkeypatch.setattr(llm, "_mock", lambda *a, **k: "This sounds like an anxiety disorder! You should see someone.")
+    r = client.post("/api/journal/message", json={"text": "I can't focus today"}).json()
+    assert r["source"] == "fallback"
+    saved = db_rows(tmp_path, "SELECT content FROM messages WHERE role='assistant'")
+    assert all("disorder" not in m["content"] for m in saved)
+
+
+def test_crisis_messages_never_enter_later_context(client, tmp_path):
+    r = client.post("/api/journal/message", json={"text": "I want to end my life"}).json()
+    client.post("/api/journal/message", json={"session_id": r["session_id"], "text": "ok I'm tired"})
+    from app import db, main
+    with db.connect() as conn:
+        ctx = main._journal_context(conn, -1)
+    assert "end my life" not in ctx

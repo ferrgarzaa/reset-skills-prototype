@@ -1,0 +1,286 @@
+{
+  "scenarios": [
+    {
+      "id": "S01",
+      "type": "ordinary",
+      "user_does": "Opens the app for the first time.",
+      "expected": "Home shows Breath, Ground, Journal and an optional check-in. No 'Your usual' yet.",
+      "observed": "4 check-in choices shown, 'Your usual' shown: False.",
+      "pass": true,
+      "screenshot": "s01-first-visit.png"
+    },
+    {
+      "id": "S02",
+      "type": "ordinary",
+      "user_does": "Taps the check-in 'Wound up'.",
+      "expected": "Screen shrinks to one suggestion (Breath reset) plus 'Show all options'.",
+      "observed": "1 activity button visible; suggestion is Breath reset: True.",
+      "pass": true,
+      "screenshot": "s02-wound-up.png"
+    },
+    {
+      "id": "S03",
+      "type": "ordinary",
+      "user_does": "Taps 'Show all options' after choosing 'Wound up'.",
+      "expected": "All three activities come back. The person can override the app's narrowing.",
+      "observed": "3 activity buttons visible.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S04",
+      "type": "ordinary",
+      "user_does": "Changes the check-in to 'Scattered'.",
+      "expected": "Ground reset becomes the suggestion at the top; the others stay available.",
+      "observed": "Suggested: Ground reset.",
+      "pass": true,
+      "screenshot": "s04-scattered.png"
+    },
+    {
+      "id": "S05",
+      "type": "ordinary",
+      "user_does": "Changes the check-in to 'Low'.",
+      "expected": "Journal becomes the suggestion at the top.",
+      "observed": "Suggested: Journal.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S06",
+      "type": "ordinary",
+      "user_does": "Taps 'Clear' on the check-in.",
+      "expected": "Normal home screen; the profile shows no current check-in.",
+      "observed": "Check-in choices back on screen; profile check-in = None.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S07",
+      "type": "ordinary",
+      "user_does": "Does a full Breath reset with press and hold.",
+      "expected": "Completes in about 66 s (plan), saved as completed with breaths followed.",
+      "observed": "status=completed, duration=66.008 s, breaths_detected=6.",
+      "pass": true,
+      "screenshot": "s07-done.png"
+    },
+    {
+      "id": "S08",
+      "type": "ordinary",
+      "user_does": "Does a Breath reset with the microphone (simulated breath-out sound).",
+      "expected": "Breaths are noticed and saved, but the Done screen shows no count or score.",
+      "observed": "breaths_detected=6 saved; Done screen mentions a count: False.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S09",
+      "type": "failure",
+      "user_does": "Chooses Microphone but the browser denies microphone access.",
+      "expected": "Stays on setup, explains it, and switches to press and hold.",
+      "observed": "Note shown: 'Couldn't use the microphone, so you can press and hold the circle instead.'. Hold selected: True.",
+      "pass": true,
+      "screenshot": "s09-mic-denied.png"
+    },
+    {
+      "id": "S10",
+      "type": "interruption",
+      "user_does": "Opens 'Need help now' in the middle of a Breath reset, closes it.",
+      "expected": "Exercise pauses while the panel is open; that time is not counted in the exercise duration.",
+      "observed": "'paused' shown: True; paused_ms=4083, active_ms=6563, wall_ms=10653.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S11",
+      "type": "interruption",
+      "user_does": "Taps Stop partway through.",
+      "expected": "Neutral 'You stopped. That's fine.' screen; saved as stopped, not as a failure.",
+      "observed": "status=stopped, steps_completed=1; screen says: 'You stopped. That's fine.'.",
+      "pass": true,
+      "screenshot": "s11-stopped.png"
+    },
+    {
+      "id": "S12",
+      "type": "ordinary",
+      "user_does": "Does a Ground reset, tapping once every 2.5 s (the planned pace).",
+      "expected": "One sense per screen, no typing; finishes under 90 s.",
+      "observed": "status=completed, measured 42.087 s.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S13",
+      "type": "ordinary",
+      "user_does": "Comes back home after finishing two Breath resets and one Ground reset.",
+      "expected": "'Your usual: Breath reset' appears without any setup.",
+      "observed": "Shown: 'Your usual: Breath reset'.",
+      "pass": true,
+      "screenshot": "s13-usual.png"
+    },
+    {
+      "id": "S14",
+      "type": "ordinary",
+      "user_does": "Fictional user 'Maya' saves her name and 'swimming', checks in as Scattered, and writes she is overwhelmed about a swim meet.",
+      "expected": "Reply is calm, uses her name once, offers her usual reset as an option; context shows name, activity, check-in, usual.",
+      "observed": "Reply: \"Thanks for writing, Maya. That sounds like a lot to hold at once. If it would help, your usual Breath reset is there and takes about a minute. Or you can keep writing here.\" Context has name/activity/check-in: True.",
+      "pass": true,
+      "screenshot": "s14-journal-personalized.png"
+    },
+    {
+      "id": "S15",
+      "type": "ordinary",
+      "user_does": "Writes 'this workout block is killing me'.",
+      "expected": "Treated as a figure of speech: normal reply, no crisis panel.",
+      "observed": "Crisis panel opened: False.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S16",
+      "type": "failure",
+      "user_does": "Writes a crisis-related sentence in the Journal (fictional).",
+      "expected": "Crisis panel opens at once; fixed message; model not called; both messages flagged.",
+      "observed": "Panel open; model calls before/after: 2/2; flags: [1, 1].",
+      "pass": true,
+      "screenshot": "s16-crisis-input.png"
+    },
+    {
+      "id": "S17",
+      "type": "failure",
+      "user_does": "Writes indirect wording: 'I just want to disappear for good'.",
+      "expected": "Known limit: the phrase list does not catch this. The Need help now button must still be there.",
+      "observed": "Panel opened automatically: False; Need help now visible: True.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S18",
+      "type": "ordinary",
+      "user_does": "Turns off 'Let the companion see my past journal entries'.",
+      "expected": "Context no longer includes earlier entries and tells the model not to mention them.",
+      "observed": "Earlier entry text in context: False; 'turned off' note: True.",
+      "pass": true,
+      "screenshot": null
+    },
+    {
+      "id": "S19",
+      "type": "failure",
+      "user_does": "The model fails (switched to fail mode), then the user writes in the Journal.",
+      "expected": "Fallback lines on home and in the Journal; message still saved; crisis panel still works.",
+      "observed": "Home line source=fallback; journal reply source=fallback; crisis panel opened: True.",
+      "pass": true,
+      "screenshot": "s19-model-fail.png"
+    },
+    {
+      "id": "S20",
+      "type": "ordinary",
+      "user_does": "Turns on Larger text, then reloads the app.",
+      "expected": "Text stays larger after reload because the setting is saved.",
+      "observed": "Larger text after reload: True.",
+      "pass": true,
+      "screenshot": "s20-large-text.png"
+    },
+    {
+      "id": "S21",
+      "type": "ordinary",
+      "user_does": "Opens History.",
+      "expected": "Shows each reset with Done/Stopped and length, and each journal entry by its first line.",
+      "observed": "7 items listed.",
+      "pass": true,
+      "screenshot": "s21-history.png"
+    },
+    {
+      "id": "S22",
+      "type": "failure",
+      "user_does": "The backend is stopped; the user opens the app, opens Need help now, and starts a Breath reset.",
+      "expected": "Crisis panel works (static); exercise still runs and says it isn't being saved.",
+      "observed": "Crisis panel opened: True; exercise running: True; 'not saved' note: True.",
+      "pass": true,
+      "screenshot": null
+    }
+  ],
+  "behavior_checks": {
+    "B1": [
+      {
+        "screen": "home",
+        "visible": true
+      },
+      {
+        "screen": "breath setup",
+        "visible": true
+      },
+      {
+        "screen": "breath exercise",
+        "visible": true
+      },
+      {
+        "screen": "done",
+        "visible": true
+      },
+      {
+        "screen": "stopped",
+        "visible": true
+      },
+      {
+        "screen": "ground exercise",
+        "visible": true
+      },
+      {
+        "screen": "profile",
+        "visible": true
+      },
+      {
+        "screen": "journal",
+        "visible": true
+      },
+      {
+        "screen": "journal after miss",
+        "visible": true
+      },
+      {
+        "screen": "journal with model failing",
+        "visible": true
+      },
+      {
+        "screen": "history",
+        "visible": true
+      },
+      {
+        "screen": "home with backend down",
+        "visible": true
+      }
+    ],
+    "B2": {
+      "journal user messages without crisis flag": 4,
+      "journal model calls": 4,
+      "crisis-flagged user messages": 1,
+      "pass": true
+    },
+    "B3": {
+      "assistant messages checked": 8,
+      "with blocked words": 0,
+      "pass": true
+    },
+    "B4": {
+      "planned_s": {
+        "breath": 66.0,
+        "ground": 55.5
+      },
+      "completed_runs": [
+        {
+          "kind": "breath",
+          "duration_s": 66.008
+        },
+        {
+          "kind": "breath",
+          "duration_s": 66.004
+        },
+        {
+          "kind": "ground",
+          "duration_s": 42.087
+        }
+      ],
+      "pass": true
+    }
+  }
+}
