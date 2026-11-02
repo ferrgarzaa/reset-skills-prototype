@@ -300,3 +300,18 @@ The person can always tap Change, Clear, or Show all options (R4). These mapping
 **Interaction modes and accessibility.** Journal now has "Speak instead", which uses the browser's speech recognition and puts the words in the text box so the person can check them before sending (typing always works). The "You" page has a Larger text setting. These sit on top of what was already there: taps instead of typing in grounding, press and hold as an alternative to the microphone, 44 px touch targets, live-region cues for screen readers, reduced-motion support, and dark mode.
 
 **Demo data.** "Load example user" under Prototype tools on the "You" page loads a made-up user, Sofia, with a week of example history, so the presentation can show personalization over time. It only works with `DEV_ENDPOINTS=1`.
+
+## 14. Looking back: what changed since Part 3.1 and why
+
+| 3.1 plan | What I have now | What led to the change |
+|---|---|---|
+| Model writes one line before and after, plus one reply to an optional note | A full Journal with a long system prompt and personal context | My instructor's feedback after 3.1. I kept it outside the exercises so they stay short (D2, R1). |
+| No mood check-in, because rating feelings is an emotional cost (D3) | One optional tap (Wound up, Scattered, Low, Okay) that changes the home screen | The presentation rubric asked for user state. I kept it to one tap with skip, Change, Clear, and Show all options, so the cost stays low and the user keeps control (R4). |
+| D1 handled only by "less on screen the deeper you go" | Same, plus "Wound up" narrows home to one suggestion | The check-in gave me something real to adapt to, without guessing distress. |
+| No settings page, to avoid configuration (D5) | A "You" page with two optional fields and two toggles, plus everything the app learned | Nobody has to fill it in, and everything still works if it stays empty. Showing what's saved also makes it clear nobody is secretly tracking anything. |
+| Breathing is just the circle | Optional microphone or press and hold, with "with you" when matched | Instructor feedback. I kept "just the circle" as the default choice and never show a score. |
+| Ground reset planned at 55.5 s | Measured 42.1 s at the planned pace | Measuring showed my reading-time assumption was too high (see the 3.3 evidence). I left the plan as is, because slower people still need the room. |
+| Open question: is one short reply "conversational" enough? | A real Journal conversation | Resolved by the Journal. |
+| Questions about saving notes | Notes are saved, can be cleared, and can be hidden from the model with a toggle | I chose saving plus control, because History needs it and the person can delete it. |
+
+Still open: live model behavior, a screen reader pass, real microphones, and whether the sports framing works for people who don't care about sports.

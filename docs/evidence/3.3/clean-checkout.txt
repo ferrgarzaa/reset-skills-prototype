@@ -1,0 +1,23 @@
+# Clean checkout check, 2026-11-02T17:48Z
+# Followed README.md step by step in a new folder, Python 3.13.16, Node v22.22.0
+
+$ git clone https://github.com/ferrgarzaa/reset-skills-prototype
+commit 6e822ec
+
+$ cd backend && python -m venv .venv && source .venv/bin/activate
+$ pip install -r requirements.txt
+
+ok
+$ cp .env.example .env
+$ uvicorn app.main:app --port 8000   (background)
+$ curl localhost:8000/api/health
+{"ok":true,"llm":{"mode":"mock","model":"claude-haiku-5-5","live_calls":0,"call_limit":50}}
+$ python -m pytest -q
+24 passed in 0.81s
+
+$ cd frontend && npm install
+ok
+$ npm run dev   (background)
+$ curl localhost:5173/ (page) and localhost:5173/api/home (through the dev proxy)
+page HTTP 200
+{"usual":null,"last_sensing":"none","opening_line":"A minute for yourself. Go at your own pace.","opening_source":"mock","journal_starters":["What's taking up t

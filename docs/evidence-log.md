@@ -67,3 +67,21 @@ A test message "I feel overwhelmed before my race" got the training reply instea
 
 ### Results
 22 automated tests pass (mocked). Screenshots of the new features are in `docs/evidence/presentation/`.
+
+## Part 3.3 (Nov 2)
+
+### Evaluation
+I turned the scenarios into one repeatable browser script (`docs/evidence/3.3/run_evaluation.py`) that checks the screen and the SQLite file after every step. All 22 scenarios and 4 behavior checks passed with mocked replies.
+
+### Failed approach: my test read the screen too early
+The first run failed S14. The test read the "What does the companion know about me?" box right after it appeared, before the text loaded, so it saw an empty box. The app was fine, and the database had the right name, activity, and check-in. I changed the test to wait until the box contains "CONTEXT", and it passed. Lesson: check the evidence (the database) before deciding the app is broken.
+
+### New tests
+- A bad "model" reply with a clinical label and an exclamation mark is replaced by the fallback and never saved.
+- Crisis-flagged messages never show up in later context.
+
+### Videos
+I recorded both videos with Playwright on the real app, with captions in a side panel. For the process screencast, I recreated the 3.2 failure by putting the old mock line back for the recording only, then restored it.
+
+### Live model
+Not run, because I don't have an API key. `live_check.py` is ready for when I do.

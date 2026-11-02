@@ -11,7 +11,7 @@ A coursework prototype with two short skills, **Breath reset** (paced breathing,
 | 3.1 Research and Design | Done. [Report](reports/3.1/report.md) |
 | 3.2 Working Application and Safety | Done with mocked model replies. [Report](reports/3.2/report.md), [evidence](docs/evidence/3.2/README.md) |
 | In-class presentation | Check-in, "You" page, voice input in Journal, larger text. See design section 13 |
-| 3.3 Integration and Evaluation | Not started |
+| 3.3 Integration and Evaluation | Done with mocked model replies. [Report](reports/3.3/report.md), [evaluation](docs/evidence/3.3/README.md), [demo video](docs/evidence/3.3/videos/demo.mp4), [process screencast](docs/evidence/3.3/videos/process.mp4) |
 
 ## Run it
 
@@ -50,6 +50,8 @@ python -m pytest -q                # all tests use mocked replies
 python tools/inspect_db.py         # prints the SQLite tables
 ```
 
+The full browser evaluation (22 scenarios) needs both servers running with `LLM_MODE=mock DEV_ENDPOINTS=1`, then `pip install playwright` and `python docs/evidence/3.3/run_evaluation.py <folder with backend.pid>`.
+
 ## Where things are
 
 - `docs/design.md`: design, decisions linked to R1–R4 and D1–D6, model role, crisis route, timing, data, and the 3.2 changes (section 12)
@@ -59,6 +61,6 @@ python tools/inspect_db.py         # prints the SQLite tables
 - `AGENTS.md`: rules for the coding agent
 - `AI-USE.md`: AI tools used and how
 
-## Planned stack
+## Stack
 
 Vue 3 (Vite), FastAPI, SQLite, and the Anthropic API (Claude, called only from the backend).
